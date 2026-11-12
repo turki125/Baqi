@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Baqi"
+description = "A bilingual Riyadh marketplace for surplus building materials, with public discovery and secure buyer and seller tools."
+version = "1.0.0"
+id = "artifacts/baqi"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18354
+
+[services.development]
+run = "pnpm --filter @workspace/baqi run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/baqi", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/baqi/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18354"
+BASE_PATH = "/"

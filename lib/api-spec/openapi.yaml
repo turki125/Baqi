@@ -1,0 +1,631 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: catalog
+    description: Riyadh material discovery and listings
+  - name: conversations
+    description: Private buyer and seller messaging
+  - name: orders
+    description: Demo checkout and pickup
+  - name: wallet
+    description: Seller balances and demo withdrawals
+  - name: assistant
+    description: Listing photo and product help assistance
+  - name: storage
+    description: Listing photo uploads
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [catalog]
+      summary: List material categories
+      responses:
+        "200":
+          description: The Baqi material categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+  /listings:
+    get:
+      operationId: listListings
+      tags: [catalog]
+      summary: Search and filter available Riyadh listings
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: condition
+          in: query
+          schema: { type: string, enum: [new, like_new, used] }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [newest, price_low, price_high], default: newest }
+        - name: freeOnly
+          in: query
+          schema: { type: boolean }
+        - name: minQuantity
+          in: query
+          schema: { type: number, minimum: 0 }
+        - name: unit
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Matching listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Listing"
+    post:
+      operationId: createListing
+      tags: [catalog]
+      summary: Publish a material listing
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingInput"
+      responses:
+        "201":
+          description: Created listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+  /listings/{id}:
+    get:
+      operationId: getListing
+      tags: [catalog]
+      summary: Get listing details
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Listing details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+        "404":
+          description: Listing not found
+    patch:
+      operationId: updateListing
+      tags: [catalog]
+      summary: Update a listing you own
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingUpdate"
+      responses:
+        "200":
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+  /listings/{id}/photo-suggestion:
+    post:
+      operationId: suggestListingDetails
+      tags: [assistant]
+      summary: Suggest a listing category and description from a photo
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhotoSuggestionInput"
+      responses:
+        "200":
+          description: Suggested values for seller review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhotoSuggestion"
+        "503":
+          description: Photo assistance is temporarily unavailable
+  /image-search:
+    post:
+      operationId: searchByImage
+      tags: [assistant]
+      summary: Find visually similar available listings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageSearchInput"
+      responses:
+        "200":
+          description: Similar listings that also meet stated constraints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Listing"
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [conversations]
+      summary: List your private conversations
+      security: [{ clerkSession: [] }]
+      responses:
+        "200":
+          description: Conversations for the signed-in account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      operationId: createConversation
+      tags: [conversations]
+      summary: Start a conversation about a listing
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "201":
+          description: Started conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+  /conversations/{id}/messages:
+    get:
+      operationId: listMessages
+      tags: [conversations]
+      summary: Read messages in a conversation you belong to
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Private messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [conversations]
+      summary: Send a message to the other participant
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Sent message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List your orders
+      security: [{ clerkSession: [] }]
+      responses:
+        "200":
+          description: Orders placed or fulfilled by the signed-in account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Reserve available listing quantity
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order reserved with quoted totals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "409":
+          description: Requested inventory is no longer available
+  /orders/{id}/deposit:
+    post:
+      operationId: payOrderDeposit
+      tags: [orders]
+      summary: Simulate deposit payment
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DemoPaymentInput"
+      responses:
+        "200":
+          description: Updated order payment status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /orders/{id}/receipt:
+    post:
+      operationId: confirmOrderReceipt
+      tags: [orders]
+      summary: Confirm pickup as the buyer
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Receipt confirmation recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /orders/{id}/balance:
+    post:
+      operationId: payOrderBalance
+      tags: [orders]
+      summary: Simulate final payment at pickup
+      security: [{ clerkSession: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DemoPaymentInput"
+      responses:
+        "200":
+          description: Updated order and wallet credit status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /wallet:
+    get:
+      operationId: getWallet
+      tags: [wallet]
+      summary: View your seller wallet and transactions
+      security: [{ clerkSession: [] }]
+      responses:
+        "200":
+          description: Wallet totals and transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+  /wallet/withdrawals:
+    post:
+      operationId: requestWithdrawal
+      tags: [wallet]
+      summary: Request a simulated demo withdrawal
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalInput"
+      responses:
+        "201":
+          description: Withdrawal request recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletTransaction"
+  /help:
+    post:
+      operationId: askHelp
+      tags: [assistant]
+      summary: Ask the Baqi help assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HelpInput"
+      responses:
+        "200":
+          description: Product help answer or support referral
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HelpAnswer"
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a listing photo upload URL
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadRequest"
+      responses:
+        "200":
+          description: Upload URL and public object path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrl"
+components:
+  securitySchemes:
+    clerkSession:
+      type: apiKey
+      in: cookie
+      name: __session
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, minLength: 1 }
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    Category:
+      type: object
+      required: [id, nameEn, nameAr]
+      properties:
+        id: { type: string }
+        nameEn: { type: string }
+        nameAr: { type: string }
+    Listing:
+      type: object
+      required: [id, title, description, categoryId, categoryNameEn, categoryNameAr, condition, quantity, unit, isFree, neighborhood, pickupDetails, photos, sellerId, sellerName, sellerTrusted, phoneVisible, saleMode, minimumIncrement, createdAt]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        categoryId: { type: string }
+        categoryNameEn: { type: string }
+        categoryNameAr: { type: string }
+        condition: { type: string, enum: [new, like_new, used] }
+        quantity: { type: number }
+        unit: { type: string }
+        unitPrice: { type: ["number", "null"] }
+        isFree: { type: boolean }
+        neighborhood: { type: string }
+        pickupDetails: { type: string }
+        mapUrl: { type: ["string", "null"] }
+        photos: { type: array, items: { type: string } }
+        sellerId: { type: string }
+        sellerName: { type: string }
+        sellerTrusted: { type: boolean }
+        sellerPhone: { type: ["string", "null"] }
+        phoneVisible: { type: boolean }
+        saleMode: { type: string, enum: [partial, full_lot] }
+        minimumIncrement: { type: number }
+        createdAt: { type: string, format: date-time }
+    ListingInput:
+      type: object
+      required: [title, description, categoryId, condition, quantity, unit, isFree, neighborhood, pickupDetails, photos, saleMode, minimumIncrement]
+      properties:
+        title: { type: string, minLength: 2 }
+        description: { type: string, minLength: 2 }
+        categoryId: { type: string }
+        condition: { type: string, enum: [new, like_new, used] }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        unit: { type: string }
+        unitPrice: { type: ["number", "null"], minimum: 0 }
+        isFree: { type: boolean }
+        neighborhood: { type: string }
+        pickupDetails: { type: string }
+        mapUrl: { type: ["string", "null"] }
+        photos: { type: array, items: { type: string } }
+        phone: { type: ["string", "null"] }
+        phoneVisible: { type: boolean, default: false }
+        saleMode: { type: string, enum: [partial, full_lot] }
+        minimumIncrement: { type: number, exclusiveMinimum: 0 }
+    ListingUpdate:
+      type: object
+      properties:
+        quantity: { type: number, minimum: 0 }
+        isAvailable: { type: boolean }
+        phone: { type: ["string", "null"] }
+        phoneVisible: { type: boolean }
+        pickupDetails: { type: string }
+        mapUrl: { type: ["string", "null"] }
+    PhotoSuggestionInput:
+      type: object
+      required: [objectPath]
+      properties:
+        objectPath: { type: string }
+    PhotoSuggestion:
+      type: object
+      required: [categoryId, title, description, confidence]
+      properties:
+        categoryId: { type: string }
+        title: { type: string }
+        description: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+    ImageSearchInput:
+      type: object
+      required: [objectPath]
+      properties:
+        objectPath: { type: string }
+        q: { type: string }
+        minQuantity: { type: number, minimum: 0 }
+        unit: { type: string }
+        categoryId: { type: string }
+    Conversation:
+      type: object
+      required: [id, listingId, listingTitle, participantName, lastMessage, updatedAt]
+      properties:
+        id: { type: string }
+        listingId: { type: string }
+        listingTitle: { type: string }
+        participantName: { type: string }
+        lastMessage: { type: string }
+        updatedAt: { type: string, format: date-time }
+    ConversationInput:
+      type: object
+      required: [listingId]
+      properties:
+        listingId: { type: string }
+        initialMessage: { type: string }
+    Message:
+      type: object
+      required: [id, conversationId, senderId, senderName, content, createdAt]
+      properties:
+        id: { type: string }
+        conversationId: { type: string }
+        senderId: { type: string }
+        senderName: { type: string }
+        content: { type: string }
+        createdAt: { type: string, format: date-time }
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, minLength: 1, maxLength: 2000 }
+    Order:
+      type: object
+      required: [id, listingId, listingTitle, quantity, unit, total, depositDue, balanceDue, status, paymentMethod, receiptConfirmed, createdAt]
+      properties:
+        id: { type: string }
+        listingId: { type: string }
+        listingTitle: { type: string }
+        quantity: { type: number }
+        unit: { type: string }
+        total: { type: number }
+        depositDue: { type: number }
+        balanceDue: { type: number }
+        status: { type: string, enum: [pending_deposit, awaiting_pickup, balance_due, completed, free_pickup] }
+        paymentMethod: { type: ["string", "null"], enum: [card, mada, null] }
+        receiptConfirmed: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    OrderInput:
+      type: object
+      required: [listingId, quantity]
+      properties:
+        listingId: { type: string }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        excessAccepted: { type: boolean, default: false }
+    DemoPaymentInput:
+      type: object
+      required: [method, simulateFailure]
+      properties:
+        method: { type: string, enum: [card, mada] }
+        simulateFailure: { type: boolean }
+    Wallet:
+      type: object
+      required: [available, pending, completed, transactions]
+      properties:
+        available: { type: number }
+        pending: { type: number }
+        completed: { type: number }
+        transactions: { type: array, items: { $ref: "#/components/schemas/WalletTransaction" } }
+    WalletTransaction:
+      type: object
+      required: [id, type, amount, status, description, createdAt]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [sale, withdrawal] }
+        amount: { type: number }
+        status: { type: string, enum: [available, pending, completed, failed] }
+        description: { type: string }
+        createdAt: { type: string, format: date-time }
+    WithdrawalInput:
+      type: object
+      required: [amount, destination]
+      properties:
+        amount: { type: number, exclusiveMinimum: 0 }
+        destination: { type: string, enum: [bank, wallet] }
+    HelpInput:
+      type: object
+      required: [question]
+      properties:
+        question: { type: string, minLength: 1, maxLength: 2000 }
+        language: { type: string, enum: [ar, en] }
+    HelpAnswer:
+      type: object
+      required: [answer, supportReferral]
+      properties:
+        answer: { type: string }
+        supportReferral: { type: boolean }
+    UploadRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: { type: string }
+        size: { type: integer, minimum: 1, maximum: 10485760 }
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp] }
+    UploadUrl:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL: { type: string, format: uri }
+        objectPath: { type: string }
+
