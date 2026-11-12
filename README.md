@@ -1,33 +1,165 @@
-# Baqi
+<div align="center">
 
-Baqi is a bilingual marketplace for surplus construction materials in Riyadh. People can browse public listings without an account; signing in is required to sell, message, reserve, and manage orders.
+# باقي · Baqi
 
-## MVP features
+### Build for less. Give surplus a second life.
 
-- English and Arabic interface with right-to-left layout
-- Search, category and condition filters, and price sorting
-- Listing creation with photo uploads, optional phone visibility, and partial or full-lot sales
-- Buyer-seller conversations, order tracking, 10% reservation deposits, and seller wallet
-- Card, Mada, and withdrawal flows are simulations only; no real funds move
-- Gemini-powered photo search and optional listing suggestions, with seller review before applying any suggested fields
+A bilingual marketplace for buying, selling, and giving away surplus construction materials in Riyadh.
 
-## Photo assistance
+**English & العربية · Local pickup · Optional AI photo assistance**
 
-Gemini uses Replit AI Integrations, with no user-supplied API key. Model usage is billed to the workspace's Replit credits. Provision the Gemini integration before running these features; managed credentials stay in Secrets and are never included in this repository.
+[Features](#features) · [How it works](#how-it-works) · [Getting started](#getting-started) · [Development](#development) · [بالعربية](#بالعربية)
 
-- Sign in to upload a private reference photo or request listing suggestions. Public browsing and text search still work without an account.
-- On the first selling step, upload a cover photo and choose **Suggest details**. Review and select the proposed title, category and description, then explicitly apply them. Replacing existing title/description text requires confirmation. Quantity, price and sale rules are never generated or changed.
-- On Browse, choose **Search with a photo**. Search optionally combines the image with text/category/condition/free-only filters and a minimum quantity in an exact unit (including custom units). No unit conversion or pooling quantities across listings is performed.
-- Visual search compares up to 12 recent qualifying listings with usable photos. Similarity is an estimate, not proof of exact dimensions, model, grade, authenticity or safety. Verify confirmed listing details with the seller.
-- JPEG, PNG and WebP uploads are limited to 10 MB and resized before analysis. Reference photos remain private; a listing photo becomes public when its owner publishes the listing.
-- AI is invoked only on explicit request. Per-server safeguards allow five photo requests per minute per account and two simultaneous analyses. Failures keep manual entry and normal text search available.
+</div>
 
-## Workspace
+---
 
-This project uses pnpm workspaces. The Baqi web app is in `artifacts/baqi`; its API is in `artifacts/api-server`, with shared API and database packages under `lib/`.
+Baqi connects people who have leftover building materials with people who can use them. Browse public listings without an account, find materials nearby, and arrange pickup directly with the seller.
 
-Use the configured Replit workflows to run the app and API. After changing database schemas, apply the development schema with:
+> **MVP status:** Deposits, card and Mada payments, wallet balances, and withdrawals are simulations. No real funds move.
+
+## Features
+
+| Area | What you can do |
+| --- | --- |
+| Bilingual experience | Switch between English and Arabic, with right-to-left layout support. |
+| Material discovery | Search listings, filter by category and condition, browse free materials, and sort by price. |
+| Selling | Upload photos, choose partial or full-lot sales, and control whether your phone number is visible. |
+| Conversations | Message sellers to ask questions and arrange collection. |
+| Reservations and orders | Reserve materials, follow order progress, and try the simulated 10% deposit flow. |
+| Seller wallet | View wallet activity and try simulated withdrawals. |
+| Photo assistance | Search with a reference photo or review suggested listing details powered by Gemini. |
+
+## How it works
+
+1. **Find materials.** Browse surplus listings across Riyadh and check the quantity, condition, neighborhood, and price per unit.
+2. **Ask and reserve.** Sign in to message the seller and reserve materials. Free items use a pickup request.
+3. **Collect locally.** Arrange pickup with the seller, collect the materials, and confirm receipt through the order flow.
+
+An account is required to sell, message, reserve, and manage orders. Public browsing and text search are available without signing in.
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Web app | React 19, TypeScript, Vite, Tailwind CSS |
+| Routing and data | Wouter, TanStack Query |
+| Authentication | Clerk |
+| API | Node.js, Express 5, Zod |
+| Database | PostgreSQL, Drizzle ORM |
+| API contracts | OpenAPI, Orval-generated clients and schemas |
+| Photo assistance | Gemini through Replit AI Integrations |
+| Workspace | pnpm workspaces |
+
+## Getting started
+
+The project is configured for a Replit environment, including managed authentication routing, object storage, and optional AI integrations.
+
+### 1. Install dependencies
+
+Use Node.js 24 and pnpm. The workspace requires pnpm rather than npm or Yarn.
+
+```sh
+git clone https://github.com/turki125/Baqi.git
+cd Baqi
+pnpm install --frozen-lockfile
+```
+
+### 2. Configure services
+
+| Configuration | Purpose |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string for the API and database tooling. |
+| Clerk configuration | Authentication for the web app and API. Local setups can supply `VITE_CLERK_PUBLISHABLE_KEY`, `CLERK_PUBLISHABLE_KEY`, and `CLERK_SECRET_KEY`. |
+| `PORT` | Listening port for each process; use separate ports for the web app and API. |
+| `BASE_PATH` | Web app base path, such as `/`. Required by the Vite configuration. |
+| Replit object storage | Listing photo uploads and private reference photos. |
+| Replit Gemini integration | Optional photo search and listing suggestions. |
+
+Store credentials in your environment or Replit Secrets. Never commit them to the repository. Local development requires routing `/api` requests to the API server; the repository does not configure a Vite API proxy.
+
+### 3. Prepare the development database
+
+After configuring `DATABASE_URL`, apply the development schema:
 
 ```sh
 pnpm --filter @workspace/db run push
 ```
+
+This command changes the connected database schema. Use a development database.
+
+### 4. Run the app
+
+Use the configured Replit workflows, or start the API and web app in separate terminals with the required environment variables:
+
+```sh
+# API
+PORT=5000 pnpm --filter @workspace/api-server run dev
+
+# Web app
+PORT=5173 BASE_PATH=/ pnpm --filter @workspace/baqi run dev
+```
+
+The existing native dependency overrides target Linux. Other platforms may need additional native build-tool setup.
+
+## Development
+
+Run these commands from the repository root:
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm run typecheck` | Check TypeScript across the workspace. |
+| `PORT=5173 BASE_PATH=/ pnpm run build` | Type-check and build the workspace. |
+| `pnpm --filter @workspace/api-spec run codegen` | Regenerate API clients and Zod schemas from OpenAPI. |
+| `pnpm --filter @workspace/db run push` | Apply database schema changes in development. |
+
+### Repository structure
+
+```text
+artifacts/
+  baqi/                 React marketplace app
+  api-server/           Express API and service integrations
+  mockup-sandbox/       UI preview sandbox
+lib/
+  api-spec/             OpenAPI contract and code generation
+  api-client-react/     Generated React API client
+  api-zod/              Generated request and response schemas
+  db/                   Database connection and Drizzle schemas
+scripts/                Workspace utilities
+```
+
+Update the OpenAPI contract and regenerate its clients when changing API interfaces. Database schemas live in `lib/db/src/schema`.
+
+## Photo assistance
+
+Photo features use Gemini through Replit AI Integrations. Provision that integration before using them. No user-supplied Gemini API key is needed; model usage is billed to the workspace's Replit credits, and managed credentials stay in Secrets.
+
+### Suggest listing details
+
+On the first selling step, upload a cover photo and choose **Suggest details**. Review and select the proposed title, category, and description before applying them. Replacing existing title or description text requires confirmation. Quantity, price, and sale rules are never generated or changed.
+
+### Search with a photo
+
+On Browse, choose **Search with a photo**. Combine a reference image with text, category, condition, free-only filters, or a minimum quantity in an exact unit, including custom units. Quantities are not converted between units or pooled across listings.
+
+Visual search compares up to 12 recent qualifying listings with usable photos. Similarity is an estimate, not proof of dimensions, model, grade, authenticity, or safety. Verify the material details with the seller.
+
+### Privacy and limits
+
+- Sign in to upload a private reference photo or request listing suggestions.
+- JPEG, PNG, and WebP uploads are limited to 10 MB and resized before analysis.
+- Reference photos remain private. A listing photo becomes public when its owner publishes the listing.
+- AI runs only on explicit request, with a per-server limit of five photo requests per minute per account and two simultaneous analyses.
+- If assistance fails, manual listing entry and normal text search remain available.
+
+## بالعربية
+
+**باقي** سوق ثنائي اللغة لفائض مواد البناء في الرياض. اشترِ ما تحتاجه، أو بِع المواد المتبقية من مشروعك، أو تبرّع بها لمن يستفيد منها.
+
+- تصفّح الإعلانات وابحث عن المواد دون إنشاء حساب.
+- سجّل الدخول لعرض موادك، ومراسلة البائعين، وحجز الكميات، ومتابعة الطلبات.
+- استخدم الواجهة العربية مع دعم العرض من اليمين إلى اليسار.
+- رتّب الاستلام مباشرة مع البائع داخل الرياض.
+- ابحث بصورة أو راجع اقتراحات تفاصيل الإعلان بمساعدة Gemini عند تفعيل التكامل.
+
+> العربون والمدفوعات والمحفظة والسحوبات في هذه النسخة محاكاة فقط؛ لا تنتقل أموال حقيقية.
