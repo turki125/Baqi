@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { useListCategories, useListListings } from '@workspace/api-client-react';
-import { ArrowRight, Camera, HandCoins, MessageCircle, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
+import { ArrowRight, Camera, ImageIcon, RotateCcw, HandCoins, MessageCircle, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
 import { useLang } from '../lang';
-import { Button, EmptyState, ErrorState, ListingCard, Modal, SkeletonGrid, btn, cx } from '../ui';
+import { Button, EmptyState, ErrorState, ListingCard, Modal, SkeletonGrid, btn, cx, useMember } from '../ui';
 import { REQ } from '@/lib/baqi';
+import { PhotoSearchDialog, useImageSearch, type PhotoSearch } from '../image-search';
+import { photoErrorMessage } from '../photo-errors';
 
 type Condition = '' | 'new' | 'like_new' | 'used';
 type Sort = 'newest' | 'price_low' | 'price_high';
@@ -20,6 +22,13 @@ export default function CatalogPage() {
   const [drawer, setDrawer] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   const listRef = useRef<HTMLElement>(null);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [photo, setPhoto] = useState<PhotoSearch | null>(null);
+  const img = useImageSearch();
+  const { user } = useMember();
+  useEffect(() => {
+    img.reset(); setPhoto(null); setPhotoOpen(false);
+  }, [user?.id]);
 
   useEffect(() => {
     window.clearTimeout(timer.current);
@@ -31,6 +40,12 @@ export default function CatalogPage() {
   const listings = useListListings(params, { request: REQ });
   const categories = useListCategories({ request: REQ });
 
+  const baseFilters = useMemo(() => ({ q: query || undefined, categoryId: category || undefined, condition: condition || undefined, freeOnly: freeOnly || undefined, sort }), [query, category, condition, freeOnly, sort]);
+  const imgKey = photo ? img.keyOf(photo, baseFilters) : '';
+  const imgStale = !!photo && !!img.state && img.state.key !== imgKey;
+  const imgActive = !!photo;
+  const runPhoto = (p: PhotoSearch) => { setPhoto(p); setPhotoOpen(false); img.run(p, baseFilters); listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const clearPhoto = () => { img.reset(); setPhoto(null); };
   const catName = (id: string) => { const c = categories.data?.find((x) => x.id === id); return c ? (isAr ? c.nameAr : c.nameEn) : id; };
   const condLabel = (c: Condition) => c === 'new' ? tr('New', 'جديد') : c === 'like_new' ? tr('Like new', 'شبه جديد') : tr('Used', 'مستعمل');
   const sortLabel = (s: Sort) => s === 'newest' ? tr('Newest first', 'الأحدث أولاً') : s === 'price_low' ? tr('Lowest price', 'الأقل سعراً') : tr('Highest price', 'الأعلى سعراً');
@@ -40,8 +55,9 @@ export default function CatalogPage() {
     condition && { key: 'cond', label: condLabel(condition), clear: () => setCondition('') },
     freeOnly && { key: 'free', label: tr('Free only', 'مجاني فقط'), clear: () => setFreeOnly(false) },
     sort !== 'newest' && { key: 'sort', label: sortLabel(sort), clear: () => setSort('newest') },
+    photo && { key: 'photo', label: tr('Photo match', 'مطابقة بالصورة') + (photo.minQuantity ? ` · ${num(photo.minQuantity)} ${photo.unit}` : ''), clear: clearPhoto },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
-  const clearAll = () => { setInput(''); setQuery(''); setCategory(''); setCondition(''); setFreeOnly(false); setSort('newest'); };
+  const clearAll = () => { clearPhoto(); setInput(''); setQuery(''); setCategory(''); setCondition(''); setFreeOnly(false); setSort('newest'); };
   const filterCount = (condition ? 1 : 0) + (freeOnly ? 1 : 0) + (sort !== 'newest' ? 1 : 0);
   const pickCategory = (id: string) => { setCategory(id); listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
@@ -77,6 +93,7 @@ export default function CatalogPage() {
             <input id="search" type="search" value={input} onChange={(e) => setInput(e.target.value)} placeholder={tr('Tiles, cement, timber, rebar…', 'بلاط، أسمنت، خشب، حديد تسليح…')}
               className="field !min-h-[54px] !ps-12 text-base" data-testid="input-search-listings" />
           </div>
+          <button type="button" onClick={() => setPhotoOpen(true)} className={btn('outline', 'lg')} aria-label={tr('Search with a photo', 'ابحث بصورة')} data-testid="button-open-photo-search"><Camera size={18} /><span className="hidden sm:inline">{tr('Photo', 'صورة')}</span></button>
           <button type="submit" className={btn('primary', 'lg')} data-testid="button-search">{tr('Search', 'بحث')}</button>
         </form>
         {categories.data && categories.data.length > 0 && <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1" aria-label={tr('Categories', 'الفئات')}>
@@ -94,7 +111,7 @@ export default function CatalogPage() {
         <div>
           <h2 id="listings-heading" className="text-xl font-bold">{category ? catName(category) : tr('Available materials', 'المواد المتاحة')}</h2>
           <p className="text-sm text-muted-foreground num" aria-live="polite" data-testid="text-listing-count">
-            {listings.isLoading ? tr('Searching…', 'جارٍ البحث…') : `${num(listings.data?.length ?? 0)} ${tr('results', 'نتيجة')}`}</p>
+            {imgActive ? (img.busy ? tr('Comparing photos…', 'جارٍ مقارنة الصور…') : img.state?.data && !imgStale ? `${num(img.state.data.length)} ${tr('visual matches', 'مطابقة بصرية')}` : tr('Photo search', 'بحث بالصورة')) : listings.isLoading ? tr('Searching…', 'جارٍ البحث…') : `${num(listings.data?.length ?? 0)} ${tr('results', 'نتيجة')}`}</p>
         </div>
         <Button variant="outline" className="md:hidden" onClick={() => setDrawer(true)} testId="button-open-filters">
           <SlidersHorizontal size={16} />{tr('Filters & sort', 'التصفية والترتيب')}{filterCount > 0 && <span className="grid size-5 place-items-center rounded-full bg-primary text-[11px] text-primary-foreground">{num(filterCount)}</span>}
@@ -106,7 +123,7 @@ export default function CatalogPage() {
           {c.label}<X size={14} /></button>)}
         <button type="button" onClick={clearAll} className="min-h-8 rounded-lg px-2 text-[13px] font-semibold text-muted-foreground underline-offset-2 hover:text-foreground hover:underline" data-testid="button-clear-filters">{tr('Clear filters', 'مسح التصفية')}</button>
       </div>}
-      {listings.isLoading ? <SkeletonGrid count={8} /> : listings.isError ? <ErrorState retry={() => void listings.refetch()} /> :
+      {imgActive ? renderPhotoResults() : listings.isLoading ? <SkeletonGrid count={8} /> : listings.isError ? <ErrorState retry={() => void listings.refetch()} /> :
         listings.data && listings.data.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{listings.data.map((l, i) => <div key={l.id} className="rise" style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}><ListingCard listing={l} /></div>)}</div> :
         <EmptyState title={chips.length ? tr('No materials match these filters', 'لا توجد مواد تطابق هذه الخيارات') : tr('No materials listed yet', 'لا توجد مواد معروضة بعد')}
           body={chips.length ? tr('Try a broader search or remove a filter.', 'جرّب بحثاً أوسع أو أزل أحد الخيارات.') : tr('Be the first to list surplus materials in Riyadh.', 'كن أول من يعرض فائض مواد في الرياض.')}
@@ -145,8 +162,23 @@ export default function CatalogPage() {
       {filterControls(true)}
       <div className="mt-6 grid grid-cols-2 gap-2">
         <Button variant="outline" onClick={() => { setCondition(''); setFreeOnly(false); setSort('newest'); }} testId="button-drawer-reset">{tr('Reset', 'إعادة ضبط')}</Button>
-        <Button onClick={() => setDrawer(false)} testId="button-drawer-apply">{tr('Show results', 'عرض النتائج')} {listings.data ? `(${num(listings.data.length)})` : ''}</Button>
+        <Button onClick={() => setDrawer(false)} testId="button-drawer-apply">{tr('Show results', 'عرض النتائج')} {!imgActive && listings.data ? `(${num(listings.data.length)})` : ''}</Button>
       </div>
     </Modal>
+    <PhotoSearchDialog key={user?.id ?? 'guest'} open={photoOpen} onOpenChange={setPhotoOpen} initial={photo} onSearch={runPhoto} />
   </main>;
+
+  function renderPhotoResults() {
+    const note = <p className="mb-4 flex items-start gap-2 rounded-xl border border-border bg-card p-3 text-[13px] leading-5 text-muted-foreground" data-testid="note-photo-scope"><ImageIcon size={15} className="mt-0.5 shrink-0" />{tr('Ranked from up to 12 recent photo listings that meet your filters; sort applies among matches. Visual similarity does not prove size, model or grade.', 'مرتبة من بين ما يصل إلى ١٢ إعلاناً حديثاً بصور تطابق خياراتك، ويُطبّق الترتيب على المطابقات. التشابه البصري لا يثبت المقاس أو الطراز أو الدرجة.')}</p>;
+    if (img.busy) return <>{note}<SkeletonGrid count={4} /></>;
+    if (imgStale || !img.state) return <>{note}<div className="rounded-2xl border border-dashed border-input bg-card px-6 py-10 text-center" data-testid="status-photo-stale">
+      <p className="font-semibold">{tr('Filters changed since the last photo search', 'تغيّرت الخيارات منذ آخر بحث بالصورة')}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{tr('Run the photo search again to see matches for these filters.', 'أعد البحث بالصورة لعرض المطابقات لهذه الخيارات.')}</p>
+      <div className="mt-5 flex flex-wrap justify-center gap-2"><Button onClick={() => photo && img.run(photo, baseFilters)} testId="button-photo-refine"><RotateCcw size={15} />{tr('Search again', 'ابحث مجدداً')}</Button><Button variant="outline" onClick={clearPhoto} testId="button-photo-clear-stale">{tr('Clear photo', 'إزالة الصورة')}</Button></div></div></>;
+    if (img.state.error) return <>{note}<ErrorState message={photoErrorMessage(img.state.error, tr)} retry={() => photo && img.run(photo, baseFilters)} />
+      <div className="flex justify-center"><Button variant="outline" onClick={clearPhoto} testId="button-photo-error-clear">{tr('Back to regular results', 'العودة للنتائج العادية')}</Button></div></>;
+    const data = img.state.data ?? [];
+    if (!data.length) return <>{note}<EmptyState title={tr('No similar materials found', 'لم نجد مواد مشابهة')} body={tr('Try a clearer photo, a smaller quantity, or fewer filters.', 'جرّب صورة أوضح أو كمية أقل أو خيارات أقل.')} action={<div className="flex gap-2"><Button variant="outline" onClick={() => setPhotoOpen(true)} testId="button-photo-empty-edit">{tr('Change photo', 'تغيير الصورة')}</Button><Button onClick={clearPhoto} testId="button-photo-empty-clear">{tr('Clear photo', 'إزالة الصورة')}</Button></div>} /></>;
+    return <>{note}<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="grid-photo-results">{data.map((l, i) => <div key={l.id} className="rise" style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}><ListingCard listing={l} /></div>)}</div></>;
+  }
 }

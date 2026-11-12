@@ -119,8 +119,17 @@ export interface ListingUpdate {
   mapUrl?: string | null;
 }
 
+export type PhotoSuggestionInputLanguage = typeof PhotoSuggestionInputLanguage[keyof typeof PhotoSuggestionInputLanguage];
+
+
+export const PhotoSuggestionInputLanguage = {
+  en: 'en',
+  ar: 'ar',
+} as const;
+
 export interface PhotoSuggestionInput {
   objectPath: string;
+  language?: PhotoSuggestionInputLanguage;
 }
 
 export interface PhotoSuggestion {
@@ -134,6 +143,24 @@ export interface PhotoSuggestion {
   confidence: number;
 }
 
+export type ImageSearchInputCondition = typeof ImageSearchInputCondition[keyof typeof ImageSearchInputCondition];
+
+
+export const ImageSearchInputCondition = {
+  new: 'new',
+  like_new: 'like_new',
+  used: 'used',
+} as const;
+
+export type ImageSearchInputSort = typeof ImageSearchInputSort[keyof typeof ImageSearchInputSort];
+
+
+export const ImageSearchInputSort = {
+  newest: 'newest',
+  price_low: 'price_low',
+  price_high: 'price_high',
+} as const;
+
 export interface ImageSearchInput {
   objectPath: string;
   q?: string;
@@ -141,6 +168,9 @@ export interface ImageSearchInput {
   minQuantity?: number;
   unit?: string;
   categoryId?: string;
+  condition?: ImageSearchInputCondition;
+  freeOnly?: boolean;
+  sort?: ImageSearchInputSort;
 }
 
 export interface Conversation {

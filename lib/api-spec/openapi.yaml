@@ -168,6 +168,7 @@ paths:
       operationId: searchByImage
       tags: [assistant]
       summary: Find visually similar available listings
+      security: [{ clerkSession: [] }]
       requestBody:
         required: true
         content:
@@ -183,6 +184,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Listing"
+        "401":
+          description: Sign in to upload and analyse a reference photo
+        "422":
+          description: The photo could not be recognised as a building material
+        "429":
+          description: Photo assistance rate limit reached
+        "503":
+          description: Photo assistance is temporarily unavailable
   /conversations:
     get:
       operationId: listConversations
@@ -502,6 +511,7 @@ components:
       required: [objectPath]
       properties:
         objectPath: { type: string }
+        language: { type: string, enum: [en, ar], default: en }
     PhotoSuggestion:
       type: object
       required: [categoryId, title, description, confidence]
@@ -519,6 +529,9 @@ components:
         minQuantity: { type: number, minimum: 0 }
         unit: { type: string }
         categoryId: { type: string }
+        condition: { type: string, enum: [new, like_new, used] }
+        freeOnly: { type: boolean }
+        sort: { type: string, enum: [newest, price_low, price_high] }
     Conversation:
       type: object
       required: [id, listingId, listingTitle, participantName, lastMessage, updatedAt]

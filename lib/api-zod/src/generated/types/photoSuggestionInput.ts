@@ -5,7 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { PhotoSuggestionInputLanguage } from './photoSuggestionInputLanguage';
 
 export interface PhotoSuggestionInput {
   objectPath: string;
+  language?: PhotoSuggestionInputLanguage;
 }

@@ -7,6 +7,7 @@ import { Router, type IRouter, type Request, type Response } from 'express';
 
 import { requireUser, userIdFromRequest } from '../lib/auth';
 import { ObjectPermission } from '../lib/objectAcl';
+import { ownsUpload } from '../lib/upload-ownership';
 import {
   ObjectNotFoundError,
   ObjectStorageService,
@@ -36,7 +37,7 @@ router.post(
     try {
       const { name, size, contentType } = parsed.data;
 
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL(userIdFromRequest(req)!);
       const objectPath =
         objectStorageService.normalizeObjectEntityPath(uploadURL);
 
@@ -108,6 +109,8 @@ router.get('/storage/objects/*path', async (req: Request, res: Response) => {
     const objectFile =
       await objectStorageService.getObjectEntityFile(objectPath);
 
+    const userId = userIdFromRequest(req);
+    if (userId) await ownsUpload(objectFile, objectPath, userId);
     const canAccess = await objectStorageService.canAccessObjectEntity({
       userId: userIdFromRequest(req),
       objectFile,

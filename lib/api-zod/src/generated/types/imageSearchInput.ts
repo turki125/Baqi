@@ -5,6 +5,8 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ImageSearchInputCondition } from './imageSearchInputCondition';
+import type { ImageSearchInputSort } from './imageSearchInputSort';
 
 export interface ImageSearchInput {
   objectPath: string;
@@ -13,4 +15,7 @@ export interface ImageSearchInput {
   minQuantity?: number;
   unit?: string;
   categoryId?: string;
+  condition?: ImageSearchInputCondition;
+  freeOnly?: boolean;
+  sort?: ImageSearchInputSort;
 }

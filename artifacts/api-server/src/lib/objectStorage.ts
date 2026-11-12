@@ -102,7 +102,7 @@ export class ObjectStorageService {
     const headers: Record<string, string> = {
       'Content-Type':
         (metadata.contentType as string) || 'application/octet-stream',
-      'Cache-Control': `${isPublic ? 'public' : 'private'}, max-age=${cacheTtlSec}`,
+      'Cache-Control': isPublic ? `public, max-age=${cacheTtlSec}` : 'private, no-store',
     };
     if (metadata.size) {
       headers['Content-Length'] = String(metadata.size);
@@ -111,7 +111,8 @@ export class ObjectStorageService {
     return new Response(webStream, { headers });
   }
 
-  async getObjectEntityUploadURL(): Promise<string> {
+  async getObjectEntityUploadURL(ownerId: string): Promise<string> {
+    if (!/^[A-Za-z0-9_-]+$/.test(ownerId)) throw new Error('Invalid upload owner');
     const privateObjectDir = this.getPrivateObjectDir();
     if (!privateObjectDir) {
       throw new Error(
@@ -121,7 +122,7 @@ export class ObjectStorageService {
     }
 
     const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
+    const fullPath = `${privateObjectDir}/uploads/${ownerId}/${objectId}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 

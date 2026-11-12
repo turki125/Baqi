@@ -797,7 +797,7 @@ return customFetch<Listing[]>(getSearchByImageUrl(),
 
 export const getSearchByImageMutationKey = () => ['searchByImage'] as const;
 
-export const getSearchByImageMutationOptions = <TError = ErrorType<unknown>,
+export const getSearchByImageMutationOptions = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof searchByImage>>, TError,SearchByImageMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof searchByImage>>, TError,SearchByImageMutationVariables, TContext> => {
 
@@ -826,13 +826,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type SearchByImageMutationResult = NonNullable<Awaited<ReturnType<typeof searchByImage>>>
     export type SearchByImageMutationBody = BodyType<ImageSearchInput>
-    export type SearchByImageMutationError = ErrorType<unknown>
+    export type SearchByImageMutationError = ErrorType<void>
     export type SearchByImageMutationVariables = {data: BodyType<ImageSearchInput>}
 
     /**
  * @summary Find visually similar available listings
  */
-export const useSearchByImage = <TError = ErrorType<unknown>,
+export const useSearchByImage = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof searchByImage>>, TError,SearchByImageMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof searchByImage>>,

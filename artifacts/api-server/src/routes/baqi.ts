@@ -39,12 +39,9 @@ import {
   PayOrderDepositResponse,
   RequestWithdrawalBody,
   RequestWithdrawalResponse,
-  SearchByImageBody,
   SendMessageBody,
   SendMessageParams,
   SendMessageResponse,
-  SuggestListingDetailsBody,
-  SuggestListingDetailsParams,
   UpdateListingBody,
   UpdateListingParams,
   UpdateListingResponse,
@@ -53,6 +50,8 @@ import { db, conversationsTable, listingsTable, messagesTable, ordersTable, wall
 import { requireUser, userIdFromRequest } from "../lib/auth";
 import { memberDisplayName } from "../lib/member-display-name";
 import { ObjectStorageService } from "../lib/objectStorage";
+import { ownsUpload } from "../lib/upload-ownership";
+import { createPhotoAssistantRouter } from "./photo-assistant";
 
 const router: IRouter = Router();
 const objectStorage = new ObjectStorageService();
@@ -164,6 +163,8 @@ function toListing(row: typeof listingsTable.$inferSelect) {
     sellerPhone: row.phoneVisible ? row.phone : null,
   });
 }
+
+router.use(createPhotoAssistantRouter(categories, toListing));
 
 function toOrder(row: typeof ordersTable.$inferSelect) {
   return {
@@ -286,6 +287,19 @@ router.post("/listings", requireUser, async (req, res): Promise<void> => {
     return;
   }
 
+  // Validate ownership before publishing, rather than claiming somebody else's
+  // object while changing its visibility after insertion.
+  for (const photo of input.photos) {
+    if (!photo.startsWith("/objects/")) {
+      res.status(400).json({ error: "Listing photos must be uploaded using Baqi." }); return;
+    }
+    try {
+      const file = await objectStorage.getObjectEntityFile(photo);
+      if (!await ownsUpload(file, photo, sellerId)) {
+        res.status(403).json({ error: "Photo ownership could not be verified. Upload your own copy.", code: "PHOTO_REUPLOAD_REQUIRED" }); return;
+      }
+    } catch { res.status(400).json({ error: "A photo is unavailable. Upload it again before publishing.", code: "PHOTO_REUPLOAD_REQUIRED" }); return; }
+  }
   const id = randomUUID();
   const [listing] = await db.insert(listingsTable).values({
     id,
@@ -369,25 +383,6 @@ router.patch("/listings/:id", requireUser, async (req, res): Promise<void> => {
     return;
   }
   res.json(UpdateListingResponse.parse(toListing(listing)));
-});
-
-router.post("/listings/:id/photo-suggestion", requireUser, async (req, res): Promise<void> => {
-  const params = SuggestListingDetailsParams.safeParse(req.params);
-  const parsed = SuggestListingDetailsBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res.status(400).json({ error: "Invalid photo suggestion request" });
-    return;
-  }
-  res.status(503).json({ error: "Photo suggestions are unavailable until Baqi AI is connected. You can enter listing details manually." });
-});
-
-router.post("/image-search", async (req, res): Promise<void> => {
-  const parsed = SearchByImageBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  res.status(503).json({ error: "Image search is unavailable until Baqi AI is connected. Use text search or filters instead." });
 });
 
 router.get("/conversations", requireUser, async (req, res): Promise<void> => {

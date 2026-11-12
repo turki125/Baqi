@@ -9,6 +9,7 @@ import type { Listing, ListingInput } from '@workspace/api-client-react';
 import { ArrowLeft, ArrowRight, Check, ImagePlus, LockKeyhole, MapPin, X } from 'lucide-react';
 import { useLang } from '../lang';
 import { BackLink, Button, Card, ErrorState, Field, ListingPhoto, PageTitle, PriceTag, Protected, SkeletonRows, Spinner, btn, cx, useConditionLabel, useMember } from '../ui';
+import { PhotoSuggestPanel } from '../photo-suggest';
 import { DRAFT_KEY, REQ, signInHref } from '@/lib/baqi';
 
 type Draft = {
@@ -140,7 +141,16 @@ function CreateWizard() {
         await qc.invalidateQueries({ queryKey: getListListingsQueryKey() });
         setLocation(`/listing/${created.id}`);
       },
-      onError: () => { lock.current = false; setSubmitError(tr('Your listing could not be published. Your details are saved; try again.', 'تعذر نشر الإعلان. تفاصيلك محفوظة، حاول مرة أخرى.')); },
+      onError: (error) => {
+        lock.current = false;
+        if ((error as { data?: { code?: string } }).data?.code === 'PHOTO_REUPLOAD_REQUIRED') {
+          setStep(0);
+          setUploadError(tr('Remove and re-upload any older or unavailable photos. Your other details are saved.', 'أزل الصور القديمة أو غير المتاحة وأعد رفعها. بقية تفاصيلك محفوظة.'));
+          top.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+        setSubmitError(tr('Your listing could not be published. Your details are saved; try again.', 'تعذر نشر الإعلان. تفاصيلك محفوظة، حاول مرة أخرى.'));
+      },
     });
   };
 
@@ -193,6 +203,9 @@ function CreateWizard() {
             {uploadError && <p role="alert" className="mt-2 text-[13px] font-medium text-destructive">{uploadError}</p>}
             {!d.photos.length && <p className="mt-2 text-[13px] text-muted-foreground">{tr('Photos are optional, but listings without them show a plain placeholder.', 'الصور اختيارية، لكن الإعلانات بدونها تظهر بصورة بديلة بسيطة.')}</p>}
           </div>
+          <PhotoSuggestPanel key={user?.id ?? 'guest'} photo={d.photos[0]} uploading={uploading} signedIn={!!user} categories={categories.data}
+            current={{ title: d.title, description: d.description, categoryId: d.categoryId }}
+            onApply={(f) => { setD((p) => ({ ...p, ...(f.title !== undefined && { title: f.title }), ...(f.description !== undefined && { description: f.description }), ...(f.categoryId !== undefined && { categoryId: f.categoryId }) })); setErrors((e) => ({ ...e, title: undefined, description: undefined, categoryId: undefined })); }} />
           <Field label={tr('Title', 'العنوان')} htmlFor="f-title" error={errors.title} hint={tr('e.g. 40 bags Portland cement 50 kg, 18 m² porcelain tiles 60×60', 'مثال: ٤٠ كيس أسمنت بورتلاندي ٥٠ كجم، ١٨ م² بلاط بورسلان ٦٠×٦٠')}>
             <input id="f-title" value={d.title} onChange={(e) => set('title', e.target.value)} className="field" dir="auto" {...err('title')} data-testid="input-listing-title" />
           </Field>

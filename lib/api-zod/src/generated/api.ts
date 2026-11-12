@@ -233,8 +233,11 @@ export const SuggestListingDetailsParams = zod.object({
   "id": zod.coerce.string().min(1)
 })
 
+export const suggestListingDetailsBodyLanguageDefault = `en`;
+
 export const SuggestListingDetailsBody = zod.object({
-  "objectPath": zod.string()
+  "objectPath": zod.string(),
+  "language": zod.enum(['en', 'ar']).default(suggestListingDetailsBodyLanguageDefault)
 })
 
 export const suggestListingDetailsResponseConfidenceMin = 0;
@@ -262,7 +265,10 @@ export const SearchByImageBody = zod.object({
   "q": zod.string().optional(),
   "minQuantity": zod.number().min(searchByImageBodyMinQuantityMin).optional(),
   "unit": zod.string().optional(),
-  "categoryId": zod.string().optional()
+  "categoryId": zod.string().optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "sort": zod.enum(['newest', 'price_low', 'price_high']).optional()
 })
 
 export const SearchByImageResponseItem = zod.object({
