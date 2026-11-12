@@ -9,6 +9,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Router as WouterRouter, useLocation } from 'wouter';
 import BaqiApp from './BaqiApp';
+import { clearPrivateSessionState } from './lib/baqi';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,41 +38,41 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: '#204a3d',
-    colorForeground: '#203e34',
-    colorMutedForeground: '#66746a',
-    colorDanger: '#a34f3b',
-    colorBackground: '#fbf8f0',
-    colorInput: '#ffffff',
-    colorInputForeground: '#203e34',
-    colorNeutral: '#203e34',
-    fontFamily: "'Manrope', sans-serif",
-    borderRadius: '1rem',
+    colorPrimary: '#075E54',
+    colorForeground: '#182226',
+    colorMutedForeground: '#56636A',
+    colorDanger: '#B8322A',
+    colorBackground: '#FFFFFF',
+    colorInput: '#FFFFFF',
+    colorInputForeground: '#182226',
+    colorNeutral: '#182226',
+    fontFamily: "'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif",
+    borderRadius: '0.75rem',
   },
   elements: {
     rootBox: 'w-full flex justify-center',
-    cardBox: 'bg-[#fbf8f0] rounded-2xl w-[440px] max-w-full overflow-hidden',
+    cardBox: 'bg-white rounded-2xl w-[440px] max-w-full overflow-hidden border border-[#DDE2E6] shadow-[0_1px_2px_rgba(24,34,38,.05)]',
     card: '!shadow-none !border-0 !bg-transparent !rounded-none',
     footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
-    headerTitle: 'text-[#203e34] font-bold',
-    headerSubtitle: 'text-[#66746a]',
-    socialButtonsBlockButtonText: 'text-[#203e34]',
-    formFieldLabel: 'text-[#536257]',
-    footerActionLink: 'text-[#204a3d]',
-    footerActionText: 'text-[#66746a]',
-    dividerText: 'text-[#66746a]',
-    identityPreviewEditButton: 'text-[#204a3d]',
-    formFieldSuccessText: 'text-[#315a46]',
-    alertText: 'text-[#8e3e31]',
+    headerTitle: 'text-[#182226] font-semibold',
+    headerSubtitle: 'text-[#56636A]',
+    socialButtonsBlockButtonText: 'text-[#182226] font-medium',
+    formFieldLabel: 'text-[#182226] font-medium',
+    footerActionLink: 'text-[#075E54] font-semibold',
+    footerActionText: 'text-[#56636A]',
+    dividerText: 'text-[#56636A]',
+    identityPreviewEditButton: 'text-[#075E54]',
+    formFieldSuccessText: 'text-[#22694A]',
+    alertText: 'text-[#8F2620]',
     logoBox: 'rounded-lg',
     logoImage: 'object-contain',
-    socialButtonsBlockButton: 'border border-[#ded5c5] bg-white',
-    formButtonPrimary: 'bg-[#204a3d] text-white',
-    formFieldInput: 'border-[#d9cfbd] bg-white text-[#203e34]',
-    footerAction: 'text-[#66746a]',
-    dividerLine: 'bg-[#ded5c5]',
-    alert: 'border-[#e5c5b8] bg-[#fff6f2]',
-    otpCodeFieldInput: 'border-[#d9cfbd] bg-white text-[#203e34]',
+    socialButtonsBlockButton: 'border border-[#CED5DA] bg-white',
+    formButtonPrimary: 'bg-[#075E54] text-white font-semibold rounded-xl',
+    formFieldInput: 'border-[#CED5DA] bg-white text-[#182226] rounded-xl',
+    footerAction: 'text-[#56636A]',
+    dividerLine: 'bg-[#DDE2E6]',
+    alert: 'border-[#F2C4BF] bg-[#FDECEA]',
+    otpCodeFieldInput: 'border-[#CED5DA] bg-white text-[#182226]',
     formFieldRow: 'gap-2',
     main: 'gap-5',
   },
@@ -93,6 +94,7 @@ function ClerkQueryClientCacheInvalidator() {
       const userId = user?.id ?? null;
       if (client.current !== undefined && client.current !== userId) {
         queryClient.clear();
+        if (client.current) clearPrivateSessionState();
       }
       client.current = userId;
     });

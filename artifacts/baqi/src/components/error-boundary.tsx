@@ -36,29 +36,27 @@ function toError(value: unknown): Error {
 }
 
 function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
+  const ar = typeof document !== 'undefined' && document.documentElement.lang === 'ar';
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-6">
-      <div className="max-w-lg w-full text-center">
-        <h1 className="text-xl font-semibold text-gray-900">
-          Something went wrong
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          This part of the app hit an error. The rest of the app is still
-          running.
+    <div className="flex min-h-[100dvh] w-full items-center justify-center bg-background p-6" dir={ar ? 'rtl' : 'ltr'}>
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-7 text-center shadow-card">
+        <h1 className="text-xl font-semibold text-foreground">{ar ? 'حدث خطأ ما' : 'Something went wrong'}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {ar ? 'واجه هذا الجزء من باقي خطأً. بقية التطبيق ما زالت تعمل.' : 'This part of Baqi hit an error. The rest of the app is still running.'}
         </p>
-        {/* Dev only: messages can carry API responses and other internals. */}
         {import.meta.env.DEV ? (
-          <pre className="mt-4 overflow-x-auto rounded bg-gray-100 p-3 text-left text-xs text-gray-800">
+          <pre className="mt-4 overflow-x-auto rounded-lg bg-muted p-3 text-start text-xs text-foreground" dir="ltr">
             {error.message || String(error)}
           </pre>
         ) : null}
-        <button
-          type="button"
-          onClick={resetError}
-          className="mt-4 rounded bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700"
-        >
-          Try again
-        </button>
+        <div className="mt-5 flex justify-center gap-2">
+          <button type="button" onClick={resetError} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-[#064c44]">
+            {ar ? 'أعد المحاولة' : 'Try again'}
+          </button>
+          <a href={import.meta.env.BASE_URL} className="inline-flex min-h-11 items-center rounded-xl border border-input bg-card px-4 text-sm font-semibold text-foreground no-underline hover:bg-muted">
+            {ar ? 'الصفحة الرئيسية' : 'Home'}
+          </a>
+        </div>
       </div>
     </div>
   );

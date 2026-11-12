@@ -51,6 +51,7 @@ import {
 } from "@workspace/api-zod";
 import { db, conversationsTable, listingsTable, messagesTable, ordersTable, walletTransactionsTable } from "@workspace/db";
 import { requireUser, userIdFromRequest } from "../lib/auth";
+import { memberDisplayName } from "../lib/member-display-name";
 import { ObjectStorageService } from "../lib/objectStorage";
 
 const router: IRouter = Router();
@@ -289,7 +290,7 @@ router.post("/listings", requireUser, async (req, res): Promise<void> => {
   const [listing] = await db.insert(listingsTable).values({
     id,
     sellerId,
-    sellerName: "Baqi member",
+    sellerName: await memberDisplayName(sellerId, "Baqi member"),
     sellerTrusted: false,
     title: input.title,
     description: input.description,
@@ -404,7 +405,10 @@ router.get("/conversations", requireUser, async (req, res): Promise<void> => {
       id: conversation.id,
       listingId: conversation.listingId,
       listingTitle: listing?.title ?? "Listing",
-      participantName: conversation.buyerId === userId ? (listing?.sellerName ?? "Baqi member") : "Baqi buyer",
+      participantName: await memberDisplayName(
+        conversation.buyerId === userId ? conversation.sellerId : conversation.buyerId,
+        conversation.buyerId === userId ? (listing?.sellerName ?? "Baqi member") : "Baqi buyer",
+      ),
       lastMessage: message?.content ?? "",
       updatedAt: conversation.updatedAt,
     };
@@ -455,7 +459,7 @@ router.post("/conversations", requireUser, async (req, res): Promise<void> => {
       id: randomUUID(),
       conversationId: conversation.id,
       senderId: buyerId,
-      senderName: "Baqi member",
+      senderName: await memberDisplayName(buyerId, "Baqi member"),
       content: parsed.data.initialMessage.trim(),
     });
     await db.update(conversationsTable).set({ updatedAt: new Date() }).where(eq(conversationsTable.id, conversation.id));
@@ -464,7 +468,7 @@ router.post("/conversations", requireUser, async (req, res): Promise<void> => {
     id: conversation.id,
     listingId: listing.id,
     listingTitle: listing.title,
-    participantName: listing.sellerName,
+    participantName: await memberDisplayName(listing.sellerId, listing.sellerName),
     lastMessage: parsed.data.initialMessage?.trim() ?? "",
     updatedAt: new Date(),
   }));
@@ -502,7 +506,7 @@ router.post("/conversations/:id/messages", requireUser, async (req, res): Promis
     id: randomUUID(),
     conversationId: conversation.id,
     senderId: userId,
-    senderName: userId === conversation.sellerId ? "Baqi seller" : "Baqi buyer",
+    senderName: await memberDisplayName(userId, userId === conversation.sellerId ? "Baqi seller" : "Baqi buyer"),
     content: parsed.data.content.trim(),
   }).returning();
   await db.update(conversationsTable).set({ updatedAt: new Date() }).where(eq(conversationsTable.id, conversation.id));
@@ -536,7 +540,7 @@ router.post("/orders", requireUser, async (req, res): Promise<void> => {
 
   const actualQuantity = listing.saleMode === "full_lot"
     ? listing.quantity
-    : Math.ceil((parsed.data.quantity - 1e-9) / listing.minimumIncrement) * listing.minimumIncrement;
+    : Number((Math.ceil((parsed.data.quantity - 1e-9) / listing.minimumIncrement) * listing.minimumIncrement).toPrecision(12));
   if (actualQuantity > listing.quantity) {
     res.status(409).json({ error: "This listing does not have enough stock for its minimum increment" });
     return;
