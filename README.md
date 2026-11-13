@@ -8,6 +8,8 @@ A bilingual marketplace for buying, selling, and giving away surplus constructio
 
 **English & العربية · Local pickup · Optional AI photo assistance**
 
+![React](https://img.shields.io/badge/React-087EA4?style=for-the-badge&logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Platform: Web](https://img.shields.io/badge/Platform-Web-555555?style=for-the-badge)
+
 [Features](#features) · [How it works](#how-it-works) · [Getting started](#getting-started) · [Development](#development) · [بالعربية](#بالعربية)
 
 </div>
