@@ -6,7 +6,9 @@
 
 A bilingual marketplace for buying, selling, and giving away surplus construction materials in Riyadh.
 
-**English & العربية · Local pickup · Optional AI photo assistance**
+**English & العربية · Local pickup · Smart search and photo assistance**
+
+[Try Baqi](https://baqi-mvp.replit.app/)
 
 ![React](https://img.shields.io/badge/React-087EA4?style=for-the-badge&logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Platform: Web](https://img.shields.io/badge/Platform-Web-555555?style=for-the-badge)
 
@@ -32,7 +34,7 @@ Baqi connects people who have leftover building materials with people who can us
 | Area | What you can do |
 | --- | --- |
 | Bilingual experience | First-visit welcome with animated materials artwork, English and Arabic interface, an Account-page language setting, right-to-left layout, and reduced-motion support. |
-| Material discovery | Search listings, filter by category and condition, browse free materials, and sort by price. |
+| Material discovery | Describe what you need in Arabic or English, search with a photo, filter listings, browse free materials, and sort by price. |
 | Selling | Upload photos, choose partial or full-lot sales, and control whether your phone number is visible. |
 | Conversations | Message sellers to ask questions and arrange collection. |
 | Reservations and orders | Reserve materials, follow order progress, and try the simulated 10% deposit flow. |
@@ -140,17 +142,23 @@ scripts/                Workspace utilities
 
 Update the OpenAPI contract and regenerate its clients when changing API interfaces. Database schemas live in `lib/db/src/schema`.
 
-## Photo assistance
+## AI assistance
 
 OpenAI powers smart text/photo search and seller photo suggestions. Configure `OPENAI_API_KEY` or `OpenAiKey` in Replit Secrets. Saved-search visual matching uses the optional managed Gemini integration. Keep provider credentials in Secrets; never commit them to this repository.
 
+### Search in your own words
+
+Type what you need in Arabic or English and select **Search**. Baqi looks for the material and any quantity, unit, size, or condition you mention. You can also use the filters yourself. Text search does not require an account. If smart search is unavailable, Baqi uses regular text search.
+
 ### Suggest listing details
 
-On the first selling step, upload a cover photo and choose **Suggest details**. Review and select the proposed title, category, and description before applying them. Replacing existing title or description text requires confirmation. Quantity, price, and sale rules are never generated or changed.
+Sign in and upload a cover photo while creating a listing. Baqi automatically suggests a short Arabic title, category, and description after the upload finishes. Review the suggestions and choose **Apply selected** to fill empty fields. Anything you already entered stays unchanged. You can retry with **Suggest details** or enter the details yourself.
+
+You set the condition, quantity, price, sale rules, exact dimensions, and pickup location yourself.
 
 ### Search with a photo
 
-On Browse, choose **Search with a photo**. Combine a reference image with text, category, condition, free-only filters, or a minimum quantity in an exact unit, including custom units. Quantities are not converted between units or pooled across listings.
+On Browse, choose **Search with a photo**. Add a reference image and, optionally, describe what else should match. Baqi analyzes the photo and text together. You can also set category, condition, free-only filters, or a minimum quantity in an exact unit, including custom units. Quantities are not converted between units or pooled across listings.
 
 Visual search compares up to 12 recent qualifying listings with usable photos. Similarity is an estimate, not proof of dimensions, model, grade, authenticity, or safety. Verify the material details with the seller.
 
@@ -159,7 +167,8 @@ Visual search compares up to 12 recent qualifying listings with usable photos. S
 - Sign in to upload a private reference photo or request listing suggestions.
 - JPEG, PNG, and WebP uploads are limited to 10 MB and resized before analysis.
 - Reference photos remain private. A listing photo becomes public when its owner publishes the listing.
-- AI runs only on explicit request, with a per-server limit of five photo requests per minute per account and two simultaneous analyses.
+- Text search starts when you select **Search**. Photo search starts when you submit a reference photo. Seller suggestions start automatically after a cover photo uploads; applying them is your choice.
+- Text search allows up to six requests per minute and 40 per hour per account, or per IP address for guests. Photo assistance allows five requests per minute per account and two simultaneous analyses per server.
 - If assistance fails, manual listing entry and normal text search remain available.
 
 ## بالعربية
