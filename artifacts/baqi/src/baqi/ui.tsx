@@ -25,9 +25,9 @@ export function useMember() {
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'accent';
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary text-primary-foreground hover:bg-[#064c44] shadow-card',
-  accent: 'bg-accent text-accent-foreground hover:bg-[#eaa82e] shadow-card',
-  secondary: 'bg-secondary text-secondary-foreground hover:bg-[#dcebe8]',
+  primary: 'bg-primary text-primary-foreground hover:bg-[#a9320d] shadow-card',
+  accent: 'bg-accent text-accent-foreground hover:bg-[#df4815] shadow-card',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-[#f3e4dc]',
   outline: 'border border-input bg-card text-foreground hover:bg-muted',
   ghost: 'text-foreground hover:bg-muted',
   danger: 'bg-destructive text-destructive-foreground hover:brightness-95',
@@ -134,7 +134,7 @@ export function Badge({ children, tone = 'neutral', className }: { children: Rea
     teal: 'bg-secondary text-secondary-foreground',
     amber: 'bg-amber-soft text-[#6b4b0c]',
     red: 'bg-[#fdecea] text-destructive',
-    green: 'bg-[#e4f3ea] text-success',
+    green: 'bg-amber-soft text-primary',
   };
   return <span className={cx('inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold', tones[tone], className)}>{children}</span>;
 }
@@ -160,7 +160,7 @@ export function ListingPhoto({ src, alt, className }: { src?: string | null; alt
 
 export function PriceTag({ listing, size = 'md' }: { listing: Listing; size?: 'md' | 'lg' }) {
   const { tr, money } = useLang();
-  if (listing.isFree) return <span className={cx('font-bold text-success', size === 'lg' ? 'text-3xl' : 'text-lg')}>{tr('Free', 'مجاناً')}</span>;
+  if (listing.isFree) return <span className={cx('font-bold text-primary', size === 'lg' ? 'text-3xl' : 'text-lg')}>{tr('Free', 'مجاناً')}</span>;
   return <span className="num"><span className={cx('font-bold text-foreground', size === 'lg' ? 'text-3xl' : 'text-lg')}>{money(listing.unitPrice ?? 0)}</span>
     <span className="text-sm font-medium text-muted-foreground"> / <bdi>{listing.unit}</bdi></span></span>;
 }
@@ -282,7 +282,7 @@ export function Header() {
         <div className="hidden items-center gap-1.5 md:flex">
         <Link href="/sell" className={btn('primary')} data-testid="link-sell"><Plus size={17} />{tr('Sell materials', 'بِع موادك')}</Link>
         {user ? <Link href="/account" aria-label={tr('Account', 'الحساب')} title={user.name} data-testid="link-account"
-          className={cx('grid size-10 place-items-center rounded-full text-sm font-bold no-underline', location.startsWith('/account') || location.startsWith('/wallet') ? 'bg-primary text-primary-foreground' : 'bg-secondary text-primary hover:bg-[#dcebe8]')}>{initials(user.name)}</Link>
+          className={cx('grid size-10 place-items-center rounded-full text-sm font-bold no-underline', location.startsWith('/account') || location.startsWith('/wallet') ? 'bg-primary text-primary-foreground' : 'bg-secondary text-primary hover:bg-[#f3e4dc]')}>{initials(user.name)}</Link>
           : <Link href={signInHref(location)} className={btn('outline')} data-testid="link-sign-in">{tr('Sign in', 'تسجيل الدخول')}</Link>}
         </div>
       </div>

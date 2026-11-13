@@ -100,7 +100,7 @@ function ReservationPanel({ item, quantity, setQuantity, excessAccepted, setExce
         </>}
       </div>
       {m.hasExcess && !m.exceedsStock && <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#f0d89f] bg-amber-soft p-3 text-[13px] leading-5 text-[#5b4211]">
-        <input type="checkbox" checked={excessAccepted} onChange={(e) => setExcessAccepted(e.target.checked)} className="mt-0.5 size-4 accent-[#075E54]" data-testid="checkbox-accept-excess" />
+        <input type="checkbox" checked={excessAccepted} onChange={(e) => setExcessAccepted(e.target.checked)} className="mt-0.5 size-4 accent-primary" data-testid="checkbox-accept-excess" />
         <span>{tr('Your quantity rounds up to', 'تُقرَّب كميتك إلى')} <strong className="num">{num(m.actualQuantity)} <bdi>{item.unit}</bdi></strong>. {tr('I agree to take this full quantity.', 'أوافق على استلام هذه الكمية كاملة.')}</span>
       </label>}
       {m.exceedsStock && <p role="alert" className="text-[13px] font-medium text-destructive">{tr('Not enough stock for the next sale step. Choose a smaller quantity.', 'المخزون لا يكفي للمضاعف التالي. اختر كمية أقل.')}</p>}

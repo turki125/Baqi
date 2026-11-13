@@ -102,17 +102,17 @@ function WalletView() {
             </Field>
             <fieldset><legend className="mb-2 text-sm font-semibold">{tr('Destination', 'الوجهة')}</legend>
               <div className="grid grid-cols-2 gap-2">{(['bank', 'wallet'] as const).map((dst) => <label key={dst} className={cx('flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm font-semibold', destination === dst ? 'border-primary bg-secondary text-primary' : 'border-input hover:bg-muted')}>
-                <input type="radio" name="dest" checked={destination === dst} onChange={() => setDestination(dst)} className="accent-[#075E54]" data-testid={`radio-destination-${dst}`} />{dst === 'bank' ? tr('Bank account', 'حساب بنكي') : tr('Digital wallet', 'محفظة رقمية')}</label>)}</div>
+                <input type="radio" name="dest" checked={destination === dst} onChange={() => setDestination(dst)} className="accent-primary" data-testid={`radio-destination-${dst}`} />{dst === 'bank' ? tr('Bank account', 'حساب بنكي') : tr('Digital wallet', 'محفظة رقمية')}</label>)}</div>
             </fieldset>
             <Button type="submit" className="w-full" disabled={withdrawal.isPending || wallet.data.available <= 0} testId="button-request-withdrawal">{withdrawal.isPending ? <Spinner /> : null}{tr('Simulate withdrawal', 'محاكاة السحب')}</Button>
-            {done && <p role="status" className="pop rounded-xl bg-[#e4f3ea] p-3 text-sm font-medium text-success" data-testid="status-withdrawal-success">{done}</p>}
+            {done && <p role="status" className="pop rounded-xl bg-amber-soft p-3 text-sm font-medium text-primary" data-testid="status-withdrawal-success">{done}</p>}
           </form>
         </Card>
         <Card className="p-5">
           <h2 className="text-base font-semibold">{tr('Transactions', 'المعاملات')}</h2>
           {!wallet.data.transactions.length ? <div className="mt-3"><EmptyState icon={<Wallet size={22} />} title={tr('No transactions yet', 'لا توجد معاملات بعد')} body={tr('Sales appear here after buyers complete their orders.', 'تظهر المبيعات هنا بعد أن يكمل المشترون طلباتهم.')} action={<Link href="/sell" className={btn('outline')}>{tr('Sell materials', 'بِع موادك')}</Link>} /></div> :
             <ul className="mt-3 divide-y divide-border">{wallet.data.transactions.map((tx) => <li key={tx.id} className="flex items-center gap-3 py-3" data-testid={`row-transaction-${tx.id}`}>
-              <span className={cx('grid size-10 shrink-0 place-items-center rounded-xl', tx.type === 'sale' ? 'bg-[#e4f3ea] text-success' : 'bg-muted text-foreground')}>{tx.type === 'sale' ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}</span>
+              <span className={cx('grid size-10 shrink-0 place-items-center rounded-xl', tx.type === 'sale' ? 'bg-amber-soft text-primary' : 'bg-muted text-foreground')}>{tx.type === 'sale' ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}</span>
               <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{tx.type === 'sale' ? tr('Sale', 'بيع') : tr('Simulated withdrawal', 'سحب تجريبي')}</p><p className="truncate text-[13px] text-muted-foreground" dir="auto">{description(tx)}</p><p className="text-xs text-muted-foreground">{date(tx.createdAt)}</p></div>
               <div className="text-end"><p className={cx('text-sm font-bold num', tx.type === 'sale' ? 'text-success' : '')}>{tx.type === 'sale' ? '+' : '-'}{money(Math.abs(tx.amount))}</p><Badge tone={tone(tx.status)} className="mt-1">{statusLabel(tx.status)}</Badge></div>
             </li>)}</ul>}

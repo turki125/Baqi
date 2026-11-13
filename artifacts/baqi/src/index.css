@@ -1,4 +1,4 @@
-@import './styles/fonts.css';
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
 @layer theme, base, clerk, components, utilities;
 @import 'tailwindcss';
 @import '@clerk/themes/shadcn.css';
@@ -39,56 +39,56 @@
 }
 
 :root {
-  --background: 220 20% 97.058824%;    /* #F6F7F9 */
-  --foreground: 197.142857 22.580645% 12.156863%; /* #182226 */
+  --background: 60 17.65% 96.67%;       /* #F8F8F5 */
+  --foreground: 100 5.88% 10%;          /* #191B18 */
   --card: 0 0% 100%;                  /* #FFFFFF */
-  --card-foreground: 197.142857 22.580645% 12.156863%;
+  --card-foreground: 100 5.88% 10%;
   --popover: 0 0% 100%;
-  --popover-foreground: 197.142857 22.580645% 12.156863%;
-  --primary: 173.103448 86.138614% 19.803922%; /* #075E54 */
+  --popover-foreground: 100 5.88% 10%;
+  --primary: 15.33 86.79% 41.57%;       /* #C63D0E: accessible orange */
   --primary-foreground: 0 0% 100%;
-  --secondary: 170 30% 94%;
-  --secondary-foreground: 173 70% 17%;
-  --muted: 216 16% 94%;
-  --muted-foreground: 199 9% 37%;
-  --accent: 38.522727 88.888889% 61.176471%; /* #F4B544 */
-  --accent-foreground: 196 23% 12%;
-  --amber-soft: 40 92% 93%;
-  --success: 150 52% 30%;
-  --border: 214 14% 88%;
-  --input: 214 14% 82%;
-  --ring: 173 86% 20%;
+  --secondary: 24 35% 94%;
+  --secondary-foreground: 15.33 86.79% 41.57%;
+  --muted: 60 8% 94%;
+  --muted-foreground: 100 3% 39%;
+  --accent: 15.58 90.43% 54.9%;         /* #F45A24 */
+  --accent-foreground: 100 5.88% 10%;
+  --amber-soft: 18 80% 95%;
+  --success: 15.33 86.79% 41.57%;
+  --border: 60 5% 85%;
+  --input: 60 4% 78%;
+  --ring: 15.33 86.79% 41.57%;
   --destructive: 4 66% 44%;
   --destructive-foreground: 0 0% 100%;
-  --app-font-body: 'Thmanyah Serif Text', serif;
-  --app-font-display: 'Thmanyah Serif Display', serif;
-  --app-font-sans: 'Thmanyah Sans', system-ui, sans-serif;
-  --app-font-mono: var(--app-font-sans);
+  --app-font-body: 'Space Grotesk', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --app-font-display: 'Space Grotesk', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --app-font-sans: 'Space Grotesk', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --app-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --radius: 0.75rem;
-  --shadow-sm: 0 1px 2px rgba(24, 34, 38, .05), 0 1px 1px rgba(24, 34, 38, .03);
-  --shadow-md: 0 8px 24px -10px rgba(24, 34, 38, .16);
+  --shadow-sm: 0 1px 2px rgba(25, 27, 24, .04), 0 1px 1px rgba(25, 27, 24, .025);
+  --shadow-md: 0 12px 30px -16px rgba(25, 27, 24, .22);
 }
 
 .dark {
-  --background: 200 18% 9%;
-  --foreground: 210 20% 95%;
-  --card: 200 16% 13%;
-  --card-foreground: 210 20% 95%;
-  --popover: 200 16% 13%;
-  --popover-foreground: 210 20% 95%;
-  --primary: 172 55% 42%;
-  --primary-foreground: 200 18% 9%;
-  --secondary: 172 20% 18%;
-  --secondary-foreground: 172 40% 85%;
-  --muted: 200 14% 18%;
-  --muted-foreground: 200 10% 68%;
-  --accent: 39 89% 61%;
-  --accent-foreground: 196 23% 12%;
-  --amber-soft: 39 40% 20%;
-  --success: 150 45% 50%;
-  --border: 200 12% 24%;
-  --input: 200 12% 28%;
-  --ring: 172 55% 42%;
+  --background: 60 17.65% 96.67%;
+  --foreground: 100 5.88% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 100 5.88% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 100 5.88% 10%;
+  --primary: 15.33 86.79% 41.57%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 24 35% 94%;
+  --secondary-foreground: 15.33 86.79% 41.57%;
+  --muted: 60 8% 94%;
+  --muted-foreground: 100 3% 39%;
+  --accent: 15.58 90.43% 54.9%;
+  --accent-foreground: 100 5.88% 10%;
+  --amber-soft: 18 80% 95%;
+  --success: 15.33 86.79% 41.57%;
+  --border: 60 5% 85%;
+  --input: 60 4% 78%;
+  --ring: 15.33 86.79% 41.57%;
   --destructive: 4 66% 55%;
   --destructive-foreground: 0 0% 100%;
 }
@@ -111,6 +111,7 @@
     font-family: var(--app-font-sans);
   }
   a.no-underline { font-family: var(--app-font-sans); }
+  html[lang='ar'] body { font-family: 'IBM Plex Sans Arabic', 'Space Grotesk', system-ui, sans-serif; }
   fieldset { min-inline-size: 0; }
   button, a { -webkit-tap-highlight-color: transparent; }
   :focus-visible { outline: 3px solid hsl(var(--primary) / .45); outline-offset: 2px; border-radius: 8px; }
@@ -138,7 +139,7 @@ html[dir='rtl'] .rtl-flip { transform: scaleX(-1); }
   transition: border-color .16s ease, box-shadow .16s ease;
 }
 .field:hover:not(:disabled) { border-color: hsl(var(--muted-foreground) / .55); }
-.field:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / .15); }
+.field:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / .12); }
 .field[aria-invalid='true'] { border-color: hsl(var(--destructive)); }
 .field:disabled { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); cursor: not-allowed; }
 .field::placeholder { color: hsl(var(--muted-foreground) / .8); }
@@ -150,6 +151,46 @@ html[dir='rtl'] select.field { background-position: left 12px center; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .pop { animation: pop .22s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes pop { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+.brand-type { font-family: 'Syne', 'IBM Plex Sans Arabic', sans-serif; }
+.material-stage { position: relative; isolation: isolate; min-height: 390px; overflow: hidden; }
+.material-stage::before { content: ''; position: absolute; inset: 9% 7% 10%; border: 1px solid rgba(25,27,24,.13); background: radial-gradient(ellipse at 50% 70%, rgba(219,215,202,.48), rgba(248,248,245,0) 65%); }
+.material-stage::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: 9%; height: 1px; background: rgba(25,27,24,.22); }
+.material-piece { position: absolute; object-fit: cover; box-shadow: 0 24px 40px -26px rgba(25,27,24,.55); transition: transform .45s cubic-bezier(.2,.75,.25,1), filter .3s ease; }
+.material-piece.tiles { width: 55%; height: 45%; left: 10%; top: 15%; transform: rotate(-7deg); z-index: 2; }
+.material-piece.timber { width: 51%; height: 43%; right: 8%; top: 26%; transform: rotate(6deg); z-index: 3; }
+.material-piece.chrome {
+  left: 19%;
+  top: 57%;
+  z-index: 5;
+  width: 62%;
+  height: clamp(14px, 2vw, 22px);
+  border: 1px solid rgba(25, 27, 24, .18);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff 0%, #d8dcda 14%, #727977 30%, #f7f8f6 45%, #a6aba9 59%, #fff 73%, #858b89 88%, #e9ebe9 100%);
+  box-shadow: 0 18px 24px -17px rgba(25, 27, 24, .72);
+  transform: rotate(-11deg);
+}
+.material-stage.is-exploded .tiles { transform: translate(-28px,-34px) rotate(-12deg); }
+.material-stage.is-exploded .timber { transform: translate(30px,-22px) rotate(12deg); }
+.material-stage.is-exploded .chrome { transform: translate(18px,34px) rotate(-7deg); }
+.material-stage.is-paused .material-piece { animation-play-state: paused !important; }
+.material-stage:not(.is-paused) .material-piece { animation: sculpture-float 7s ease-in-out infinite; }
+.material-stage:not(.is-paused) .timber { animation-delay: -2.3s; }
+.material-stage:not(.is-paused) .chrome { animation-delay: -4.4s; }
+@keyframes sculpture-float { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+.technical-label { font: 10px 'Space Grotesk', sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+html[dir='rtl'] .technical-label { font-family: 'IBM Plex Sans Arabic', sans-serif; letter-spacing: 0; }
+.surface-grid { background-image: linear-gradient(to right, rgba(25,27,24,.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(25,27,24,.045) 1px, transparent 1px); background-size: 28px 28px; }
+input[type='checkbox'], input[type='radio'] { accent-color: #C63D0E; }
+@media (max-width: 639px) {
+  .material-stage { min-height: clamp(250px, 72vw, 330px); }
+  .material-piece.tiles { width: 58%; height: 45%; left: 8%; top: 14%; }
+  .material-piece.timber { width: 53%; height: 43%; right: 6%; top: 25%; }
+  .material-piece.chrome { left: 17%; width: 66%; }
+}
+@media (min-width: 1024px) {
+  .material-stage { min-height: 440px; }
+}
 .shimmer { background: linear-gradient(90deg, hsl(var(--muted)) 0%, hsl(var(--muted) / .45) 50%, hsl(var(--muted)) 100%); background-size: 200% 100%; animation: shimmer 1.3s linear infinite; }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
@@ -160,12 +201,15 @@ html[dir='rtl'] select.field { background-position: left 12px center; }
 }
 
 /* Clerk pseudo-states */
-.cl-formButtonPrimary:hover { background: #064c44 !important; }
-.cl-formFieldInput:focus { border-color: #075E54 !important; box-shadow: 0 0 0 3px rgba(7, 94, 84, .15) !important; }
+.cl-formButtonPrimary { background: #C63D0E !important; color: #fff !important; }
+.cl-formButtonPrimary:hover { background: #a9320d !important; }
+.cl-formFieldInput:focus { border-color: #C63D0E !important; box-shadow: 0 0 0 3px rgba(198, 61, 14, .12) !important; }
+.cl-footerActionLink, .cl-identityPreviewEditButton { color: #C63D0E !important; }
 .cl-formFieldInput::placeholder { color: #7a868b; opacity: 1; }
-.cl-socialButtonsBlockButton:hover { background: #F6F7F9 !important; }
+.cl-socialButtonsBlockButton:hover { background: #F8F8F5 !important; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .material-piece { animation: none !important; }
 }

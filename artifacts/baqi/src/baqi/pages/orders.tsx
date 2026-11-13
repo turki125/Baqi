@@ -212,12 +212,12 @@ function OrderView({ order }: { order: Order }) {
         <legend className="mb-2 text-sm font-semibold">{tr('Payment method', 'طريقة الدفع')}</legend>
         <div className="grid grid-cols-2 gap-2">
           {(['mada', 'card'] as const).map((m) => <label key={m} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm font-semibold transition-colors', method === m ? 'border-primary bg-secondary text-primary' : 'border-input hover:bg-muted')}>
-            <input type="radio" name={`method-${order.id}`} value={m} checked={method === m} onChange={() => setMethod(m)} className="accent-[#075E54]" data-testid={`radio-method-${m}`} />
+            <input type="radio" name={`method-${order.id}`} value={m} checked={method === m} onChange={() => setMethod(m)} className="accent-primary" data-testid={`radio-method-${m}`} />
             <CreditCard size={16} />{m === 'mada' ? tr('Mada', 'مدى') : tr('Card', 'بطاقة')}</label>)}
         </div>
       </fieldset>
       <label className="mt-3 flex cursor-pointer items-center gap-2 text-[13px] text-muted-foreground">
-        <input type="checkbox" checked={simulateFailure} onChange={(e) => setSimulateFailure(e.target.checked)} className="accent-[#075E54]" data-testid="checkbox-simulate-failure" />
+        <input type="checkbox" checked={simulateFailure} onChange={(e) => setSimulateFailure(e.target.checked)} className="accent-primary" data-testid="checkbox-simulate-failure" />
         {tr('Simulate a failed payment (to test retry)', 'محاكاة فشل الدفع (لتجربة إعادة المحاولة)')}
       </label>
       <Button size="lg" className="mt-4 w-full" disabled={busy} onClick={() => run(payKind)} testId={payKind === 'deposit' ? `button-pay-deposit-${order.id}` : `button-pay-balance-${order.id}`}>
@@ -254,7 +254,7 @@ function OrderView({ order }: { order: Order }) {
       {order.total > 0 && <Link href="/wallet" className={cx(btn('outline'), 'mt-3')}>{tr('Open wallet', 'افتح المحفظة')}</Link>}
     </Card>}
 
-    {message && <p role={message.tone === 'err' ? 'alert' : 'status'} className={cx('pop rounded-xl p-3 text-sm font-medium', message.tone === 'ok' ? 'bg-[#e4f3ea] text-success' : 'bg-[#fdecea] text-destructive')} data-testid={message.tone === 'err' ? `status-payment-error-${order.id}` : 'status-payment-success'}>{message.text}</p>}
+    {message && <p role={message.tone === 'err' ? 'alert' : 'status'} className={cx('pop rounded-xl p-3 text-sm font-medium', message.tone === 'ok' ? 'bg-amber-soft text-primary' : 'bg-[#fdecea] text-destructive')} data-testid={message.tone === 'err' ? `status-payment-error-${order.id}` : 'status-payment-success'}>{message.text}</p>}
     {conversation.isError && <p role="alert" className="text-sm text-destructive">{tr('Could not open the conversation.', 'تعذر فتح المحادثة.')}</p>}
     {order.status === 'completed' && <Card className="p-4">
       <div className="flex items-start gap-3">

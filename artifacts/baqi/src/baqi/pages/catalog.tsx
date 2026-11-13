@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { useListCategories, useListListings } from '@workspace/api-client-react';
-import { ArrowRight, Camera, ImageIcon, RotateCcw, HandCoins, MessageCircle, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
+import { ArrowRight, Camera, ImageIcon, RotateCcw, HandCoins, MessageCircle, Search, SlidersHorizontal, Truck, X, Layers2, Pause, Play } from 'lucide-react';
 import { useLang } from '../lang';
 import { Button, EmptyState, ErrorState, ListingCard, Modal, SkeletonGrid, btn, cx, useMember } from '../ui';
-import { REQ } from '@/lib/baqi';
+import { basePath, REQ } from '@/lib/baqi';
 import { PhotoSearchDialog, useImageSearch, type PhotoSearch } from '../image-search';
 import { photoErrorMessage } from '../photo-errors';
 import { AlertEditor, AlertPrompt, hasSearchCriteria, useRestoreAlertIntent, type AlertDraft } from '../alerts';
@@ -27,6 +27,8 @@ export default function CatalogPage() {
   const timer = useRef<number | undefined>(undefined);
   const listRef = useRef<HTMLElement>(null);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [exploded, setExploded] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
   const [photo, setPhoto] = useState<PhotoSearch | null>(null);
   const img = useImageSearch();
   const { user } = useMember();
@@ -81,34 +83,62 @@ export default function CatalogPage() {
       </select>
     </div>
     <label className="flex min-h-[46px] cursor-pointer items-center gap-3 rounded-xl border border-input bg-card px-4 text-sm font-semibold">
-      <input type="checkbox" checked={freeOnly} onChange={(e) => setFreeOnly(e.target.checked)} className="size-4 accent-[#075E54]" data-testid="checkbox-free-only" />
+      <input type="checkbox" checked={freeOnly} onChange={(e) => setFreeOnly(e.target.checked)} className="size-4 accent-primary" data-testid="checkbox-free-only" />
       {tr('Free materials only', 'المواد المجانية فقط')}
     </label>
   </div>;
 
   return <main>
-    <section className="border-b border-border bg-card">
-      <div className="mx-auto max-w-[1240px] px-4 pb-7 pt-8 sm:px-6 sm:pt-12">
-        <p className="mb-3 inline-flex items-center gap-2 rounded-md bg-secondary px-2.5 py-1 text-xs font-semibold text-primary">{tr('Riyadh · local pickup', 'الرياض · استلام محلي')}</p>
-        <h1 className="max-w-3xl text-[30px] font-bold leading-[1.15] tracking-tight sm:text-[36px]">{tr('Build for less. Give surplus a second life.', 'ابنِ بتكلفة أقل. وامنح فائض المواد فرصة جديدة.')}</h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-7 text-muted-foreground sm:text-base">{tr('Buy leftover building materials from sites and homes across Riyadh, sell what you no longer need, or give it away to someone who can use it. Pickup is arranged directly with the seller.', 'اشترِ فائض مواد البناء من المواقع والمنازل في الرياض، أو بِع ما لم تعد تحتاجه، أو تبرّع به لمن يستفيد منه. يتم ترتيب الاستلام مباشرة مع البائع.')}</p>
-        <form role="search" onSubmit={(e) => { e.preventDefault(); setQuery(input.trim()); listRef.current?.scrollIntoView({ behavior: 'smooth' }); }} className="mt-6 flex max-w-3xl gap-2">
+    <section className="overflow-hidden border-b border-border bg-background">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-4 px-4 pb-8 pt-7 sm:px-6 sm:pb-12 lg:min-h-[570px] lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-8 lg:px-10 lg:py-10">
+        <div className="relative z-10 min-w-0 max-w-full lg:py-10">
+        <p className="technical-label mb-5 flex items-center gap-3 text-muted-foreground"><span className="h-px w-9 bg-primary" />{tr('Riyadh / material exchange / 01', 'الرياض / تبادل المواد / ٠١')}</p>
+        <h1 className="w-full min-w-0 max-w-full break-words text-[30px] font-bold leading-[1.12] tracking-tight sm:max-w-3xl sm:text-[42px] lg:text-[54px]">
+          <span className="brand-type block max-w-full text-[1.42em] leading-[1.1]" lang="ar" dir="rtl">باقي <span className="text-[#F45A24]">فيه خير</span></span>
+          <span className="mt-2 block max-w-full">{tr('Good materials. A new beginning.', 'مواد جيدة. بداية جديدة.')}</span>
+        </h1>
+        <p className="mt-4 w-full max-w-xl break-words text-[15px] leading-7 text-muted-foreground sm:text-base">{tr('Buy leftover building materials from sites and homes across Riyadh, sell what you no longer need, or give it away to someone who can use it. Pickup is arranged directly with the seller.', 'اشترِ فائض مواد البناء من المواقع والمنازل في الرياض، أو بِع ما لم تعد تحتاجه، أو تبرّع به لمن يستفيد منه. يتم ترتيب الاستلام مباشرة مع البائع.')}</p>
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-[13px] font-medium text-muted-foreground">
+          <span className="flex items-center gap-2 border-e border-border pe-3"><span className="size-2 rounded-full bg-primary" />{tr('Local pickup in Riyadh', 'استلام محلي في الرياض')}</span>
+          <span>{tr('Reuse starts nearby', 'إعادة الاستخدام تبدأ من هنا')}</span>
+        </div>
+        <form role="search" onSubmit={(e) => { e.preventDefault(); setQuery(input.trim()); listRef.current?.scrollIntoView({ behavior: 'smooth' }); }} className="mt-6 grid w-full min-w-0 max-w-3xl grid-cols-[minmax(0,1fr)_auto_auto] gap-2 max-[360px]:grid-cols-[minmax(0,1fr)_auto]">
           <label htmlFor="search" className="sr-only">{tr('Search materials', 'ابحث عن المواد')}</label>
-          <div className="relative flex-1">
+          <div className="relative min-w-0 max-[360px]:col-span-2">
             <Search size={20} className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input id="search" type="search" value={input} onChange={(e) => setInput(e.target.value)} placeholder={tr('Tiles, cement, timber, rebar…', 'بلاط، أسمنت، خشب، حديد تسليح…')}
               className="field !min-h-[54px] !ps-12 text-base" data-testid="input-search-listings" />
           </div>
-          <button type="button" onClick={() => setPhotoOpen(true)} className={btn('outline', 'lg')} aria-label={tr('Search with a photo', 'ابحث بصورة')} data-testid="button-open-photo-search"><Camera size={18} /><span className="hidden sm:inline">{tr('Photo', 'صورة')}</span></button>
+          <button type="button" onClick={() => setPhotoOpen(true)} className={cx(btn('outline', 'lg'), 'max-[360px]:col-start-1')} aria-label={tr('Search with a photo', 'ابحث بصورة')} data-testid="button-open-photo-search"><Camera size={18} /><span className="hidden sm:inline">{tr('Photo', 'صورة')}</span></button>
           <button type="submit" className={btn('primary', 'lg')} data-testid="button-search">{tr('Search', 'بحث')}</button>
         </form>
-        {categories.data && categories.data.length > 0 && <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1" aria-label={tr('Categories', 'الفئات')}>
+        </div>
+        <div className="relative min-w-0">
+          <div className={cx('material-stage surface-grid mx-auto w-full max-w-[640px] rounded-sm', exploded && 'is-exploded', motionPaused && 'is-paused')} dir="ltr" role="group" aria-label={tr('A sculptural arrangement of limestone, timber and chrome', 'تكوين فني من الحجر والخشب والكروم')}>
+            <img className="material-piece tiles" src={`${basePath}/demo-tiles.jpg`} alt={tr('Stack of reusable limestone tiles', 'رصّة بلاط حجري قابل لإعادة الاستخدام')} />
+            <img className="material-piece timber" src={`${basePath}/demo-timber.jpg`} alt={tr('Reusable timber boards', 'ألواح خشب قابلة لإعادة الاستخدام')} />
+            <span aria-hidden="true" className="material-piece chrome" />
+            <span className="technical-label absolute start-3 top-3 z-10 bg-background/90 px-2 py-1 text-muted-foreground">{tr('Material study / Riyadh', 'دراسة المواد / الرياض')}</span>
+            <span className="technical-label absolute bottom-3 end-3 z-10 bg-background/90 px-2 py-1 text-muted-foreground">24°42′ N — 46°40′ E</span>
+          </div>
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <button type="button" onClick={() => setExploded((v) => !v)} aria-pressed={exploded} className="inline-flex min-h-11 items-center gap-2 border border-border bg-card px-3 text-xs font-semibold transition-colors hover:border-primary hover:text-primary" data-testid="button-sculpture-explode">
+              <Layers2 size={15} />{exploded ? tr('Reassemble', 'إعادة التجميع') : tr('Explode view', 'عرض تفكيكي')}
+            </button>
+            <button type="button" onClick={() => setMotionPaused((v) => !v)} aria-pressed={motionPaused} className="inline-flex min-h-11 items-center gap-2 border border-border bg-card px-3 text-xs font-semibold transition-colors hover:border-primary hover:text-primary" data-testid="button-sculpture-motion">
+              {motionPaused ? <Play size={15} /> : <Pause size={15} />}{motionPaused ? tr('Resume motion', 'استئناف الحركة') : tr('Pause motion', 'إيقاف الحركة')}
+            </button>
+          </div>
+        </div>
+        <div className="lg:col-span-2">
+        {categories.data && categories.data.length > 0 && <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0" aria-label={tr('Categories', 'الفئات')}>
           <button type="button" onClick={() => pickCategory('')} aria-pressed={!category} className={cx('shrink-0 rounded-lg border px-3.5 py-2 text-sm font-semibold transition-colors', !category ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:bg-muted')} data-testid="button-category-all">{tr('All materials', 'كل المواد')}</button>
           {categories.data.map((c) => <button key={c.id} type="button" onClick={() => pickCategory(category === c.id ? '' : c.id)} aria-pressed={category === c.id}
             className={cx('shrink-0 rounded-lg border px-3.5 py-2 text-sm font-semibold transition-colors', category === c.id ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:bg-muted')} data-testid={`button-category-${c.id}`}>{isAr ? c.nameAr : c.nameEn}</button>)}
         </div>}
         {categories.isLoading && <div className="mt-5 flex gap-2">{[0, 1, 2, 3].map((i) => <div key={i} className="shimmer h-9 w-24 rounded-lg" />)}</div>}
         {categories.isError && <ErrorState message={tr('Categories could not be loaded.', 'تعذر تحميل الفئات.')} retry={() => void categories.refetch()} />}
+        </div>
       </div>
     </section>
 
@@ -125,7 +155,7 @@ export default function CatalogPage() {
         <div className="hidden md:block">{filterControls(false)}</div>
       </div>
       {chips.length > 0 && <div className="mb-5 flex flex-wrap items-center gap-2" aria-label={tr('Active filters', 'عوامل التصفية النشطة')}>
-        {chips.map((c) => <button key={c.key} type="button" onClick={c.clear} className="pop inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-secondary px-2.5 text-[13px] font-semibold text-primary hover:bg-[#dcebe8]" data-testid={`chip-filter-${c.key}`} aria-label={`${tr('Remove filter', 'إزالة')} ${c.label}`}>
+        {chips.map((c) => <button key={c.key} type="button" onClick={c.clear} className="pop inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-secondary px-2.5 text-[13px] font-semibold text-primary hover:bg-[#f3e4dc]" data-testid={`chip-filter-${c.key}`} aria-label={`${tr('Remove filter', 'إزالة')} ${c.label}`}>
           {c.label}<X size={14} /></button>)}
         <button type="button" onClick={clearAll} className="min-h-8 rounded-lg px-2 text-[13px] font-semibold text-muted-foreground underline-offset-2 hover:text-foreground hover:underline" data-testid="button-clear-filters">{tr('Clear filters', 'مسح التصفية')}</button>
       </div>}

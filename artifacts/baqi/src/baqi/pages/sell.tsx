@@ -287,7 +287,7 @@ function CreateWizard() {
               <input id="f-phone" type="tel" dir="ltr" value={d.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+966 5x xxx xxxx" className="field" data-testid="input-listing-phone" />
             </Field>
             <label className={cx('flex min-h-[46px] cursor-pointer items-center gap-3 self-end rounded-xl border border-input px-4 text-sm font-semibold', !d.phone.trim() && 'opacity-50')}>
-              <input type="checkbox" disabled={!d.phone.trim()} checked={d.phoneVisible && !!d.phone.trim()} onChange={(e) => set('phoneVisible', e.target.checked)} className="size-4 accent-[#075E54]" data-testid="checkbox-phone-visible" />
+              <input type="checkbox" disabled={!d.phone.trim()} checked={d.phoneVisible && !!d.phone.trim()} onChange={(e) => set('phoneVisible', e.target.checked)} className="size-4 accent-primary" data-testid="checkbox-phone-visible" />
               {tr('Show my phone on the listing', 'أظهر رقمي في الإعلان')}
             </label>
           </div>

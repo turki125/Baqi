@@ -17,13 +17,15 @@ export default function AuthPage({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     { icon: Truck, t: tr('Track pickup and orders in one place', 'تابع الاستلام والطلبات في مكان واحد') },
   ];
   return <div className="grid min-h-[100dvh] bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-    <aside className="hidden flex-col justify-between bg-primary p-10 text-primary-foreground lg:flex xl:p-14">
-      <Link href="/" className="w-fit rounded-lg text-primary-foreground no-underline [&_span]:!text-primary-foreground"><Logo /></Link>
+    <aside className="relative hidden flex-col justify-between overflow-hidden border-e border-border bg-[#F8F8F5] p-10 text-foreground lg:flex xl:p-14">
+      <span className="technical-label absolute end-8 top-8 text-muted-foreground">BAQI / RIYADH</span>
+      <Link href="/" className="w-fit rounded-lg text-foreground no-underline"><Logo /></Link>
       <div className="max-w-md">
-        <h1 className="text-[34px] font-bold leading-tight">{tr('Build for less. Give surplus a second life.', 'ابنِ بتكلفة أقل. وامنح فائض المواد فرصة جديدة.')}</h1>
-        <ul className="mt-8 space-y-4">{points.map((p) => <li key={p.t} className="flex items-center gap-3 text-[15px] text-white/90"><span className="grid size-9 place-items-center rounded-lg bg-white/12"><p.icon size={17} /></span>{p.t}</li>)}</ul>
+        <h1 className="brand-type text-[34px] font-bold leading-tight">{tr('Good materials. A new beginning.', 'مواد جيدة. بداية جديدة.')}</h1>
+        <p className="mt-3 text-lg font-semibold" lang="ar" dir="rtl">باقي <span className="text-[#F45A24]">فيه خير</span></p>
+        <ul className="mt-8 space-y-4">{points.map((p) => <li key={p.t} className="flex items-center gap-3 text-[15px] text-foreground/85"><span className="grid size-9 place-items-center rounded-lg border border-border bg-card text-primary"><p.icon size={17} /></span>{p.t}</li>)}</ul>
       </div>
-      <p className="text-xs text-white/70">{tr('Payments in this version are simulations.', 'المدفوعات في هذه النسخة محاكاة.')}</p>
+      <p className="text-xs text-muted-foreground">{tr('Payments in this version are simulations.', 'المدفوعات في هذه النسخة محاكاة.')}</p>
     </aside>
     <main className="flex min-h-[100dvh] min-w-0 flex-col px-4 py-5 sm:px-8">
       <div className="flex items-center justify-between gap-2">

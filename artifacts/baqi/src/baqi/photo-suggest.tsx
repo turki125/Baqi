@@ -90,12 +90,12 @@ export function PhotoSuggestPanel({ photo, uploading, signedIn, current, categor
           ['categoryId', tr('Category', 'الفئة'), cat ? (isAr ? cat.nameAr : cat.nameEn) : tr('No matching category', 'لا توجد فئة مطابقة'), !!cat],
           ['description', tr('Description', 'الوصف'), live.description, true],
         ] as const).map(([k, label, val, ok]) => <label key={k} className={cx('flex gap-3 rounded-lg border p-3', pick[k] && ok ? 'border-primary bg-secondary/60' : 'border-border', !ok && 'opacity-60')}>
-          <input type="checkbox" disabled={!ok} checked={pick[k] && ok} onChange={(e) => { setPick((p) => ({ ...p, [k]: e.target.checked })); setConfirmReplace(false); }} className="mt-1 size-4 accent-[#075E54]" data-testid={`checkbox-suggest-${k}`} />
+          <input type="checkbox" disabled={!ok} checked={pick[k] && ok} onChange={(e) => { setPick((p) => ({ ...p, [k]: e.target.checked })); setConfirmReplace(false); }} className="mt-1 size-4 accent-primary" data-testid={`checkbox-suggest-${k}`} />
           <span className="min-w-0"><span className="block text-xs font-semibold text-muted-foreground">{label}</span><span className="block whitespace-pre-line text-sm" dir="auto" data-testid={`text-suggest-${k}`}>{val}</span></span>
         </label>)}
       </div>
       {overwrites && <label className="mt-3 flex items-start gap-2 rounded-lg bg-amber-soft p-3 text-[13px] text-[#5b4211]">
-        <input type="checkbox" checked={confirmReplace} onChange={(e) => setConfirmReplace(e.target.checked)} className="mt-0.5 size-4 accent-[#075E54]" data-testid="checkbox-confirm-replace" />
+        <input type="checkbox" checked={confirmReplace} onChange={(e) => setConfirmReplace(e.target.checked)} className="mt-0.5 size-4 accent-primary" data-testid="checkbox-confirm-replace" />
         {tr('Replace the title or description I already typed.', 'استبدل العنوان أو الوصف الذي كتبته.')}</label>}
       <p className="mt-3 flex items-start gap-2 text-[13px] leading-5 text-muted-foreground"><ShieldAlert size={15} className="mt-0.5 shrink-0" />{tr('Inspect the material and confirm sizes, brand and quantity yourself. A photo cannot verify them.', 'افحص المادة وتأكد بنفسك من المقاسات والعلامة والكمية. الصورة لا تثبتها.')}</p>
       <div className="mt-3 flex flex-wrap justify-end gap-2">
