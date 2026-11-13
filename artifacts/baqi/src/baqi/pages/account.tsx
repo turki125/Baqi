@@ -13,7 +13,7 @@ export function AccountPage() {
   const { user, isLoaded } = useMember();
   const signOut = useSignOut();
   const rows = [
-    { href: '/account/alerts', icon: SearchCheck, t: tr('Manage alerts', 'إدارة تنبيهاتي'), s: tr('Saved searches, pause, resume and email', 'عمليات البحث المحفوظة والإيقاف والبريد') },
+    { href: '/account/alerts', icon: SearchCheck, t: tr('Manage my alerts', 'إدارة تنبيهاتي'), s: tr('Saved searches, pause, resume and email', 'عمليات البحث المحفوظة والإيقاف والبريد') },
     { href: '/wallet', icon: Wallet, t: tr('Wallet', 'المحفظة'), s: tr('Sale proceeds and simulated withdrawals', 'عوائد البيع والسحوبات التجريبية') },
     { href: '/help', icon: CircleHelp, t: tr('Help', 'المساعدة'), s: tr('Deposits, pickup and how Baqi works', 'العربون والاستلام وطريقة عمل باقي') },
   ];
