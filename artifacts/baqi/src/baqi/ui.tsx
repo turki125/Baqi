@@ -272,7 +272,7 @@ export function Header() {
       </nav>
       <div className="ms-auto flex items-center gap-1.5">
         <Link href="/help" className="hidden size-10 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground sm:grid" aria-label={tr('Help', 'المساعدة')} data-testid="link-help"><CircleHelp size={19} /></Link>
-        {user && <Link href="/account/alerts" className={cx(btn('ghost', 'sm'), 'hidden min-h-10 lg:inline-flex', location.startsWith('/account/alerts') && 'bg-secondary text-primary')} data-testid="link-header-alerts"><SearchCheck size={17} />إدارة تنبيهاتي</Link>}
+        {user && <Link href="/account/alerts" className={cx(btn('ghost', 'sm'), 'hidden min-h-10 lg:inline-flex', location.startsWith('/account/alerts') && 'bg-secondary text-primary')} data-testid="link-header-alerts"><SearchCheck size={17} />{tr('Manage my alerts', 'إدارة تنبيهاتي')}</Link>}
         <div className="hidden items-center gap-1.5 md:flex">
         <Link href="/sell" className={btn('primary')} data-testid="link-sell"><Plus size={17} />{tr('Sell materials', 'بِع موادك')}</Link>
         {user ? <Link href="/account" aria-label={tr('Account', 'الحساب')} title={user.name} data-testid="link-account"
