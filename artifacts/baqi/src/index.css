@@ -177,10 +177,28 @@ html[dir='rtl'] select.field { background-position: left 12px center; }
 .material-stage.is-exploded .timber { transform: translate(30px,-22px) rotate(12deg); }
 .material-stage.is-exploded .chrome { transform: translate(18px,34px) rotate(-7deg); }
 .material-stage.is-paused .material-piece { animation-play-state: paused !important; }
-.material-stage:not(.is-paused) .material-piece { animation: sculpture-float 7s ease-in-out infinite; }
-.material-stage:not(.is-paused) .timber { animation-delay: -2.3s; }
-.material-stage:not(.is-paused) .chrome { animation-delay: -4.4s; }
-@keyframes sculpture-float { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+.material-stage .material-piece { animation-duration: 12s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.material-stage .tiles { animation: material-tiles-drift 12s ease-in-out infinite; }
+.material-stage .timber { animation: material-timber-drift 12s ease-in-out .2s infinite; }
+.material-stage .chrome { animation: material-chrome-drift 12s ease-in-out .4s infinite; }
+@keyframes material-tiles-drift {
+  0%,100% { transform: rotate(-7deg) translate(0,0); }
+  25% { transform: translate(-5px,-7px) rotate(-8deg); }
+  50% { transform: translate(-13px,-18px) rotate(-10deg); }
+  75% { transform: translate(-4px,-5px) rotate(-8deg); }
+}
+@keyframes material-timber-drift {
+  0%,100% { transform: rotate(6deg) translate(0,0); }
+  25% { transform: translate(4px,-5px) rotate(7deg); }
+  50% { transform: translate(14px,-11px) rotate(9deg); }
+  75% { transform: translate(5px,-3px) rotate(7deg); }
+}
+@keyframes material-chrome-drift {
+  0%,100% { transform: rotate(-11deg) translate(0,0); }
+  25% { transform: translate(0,8px) rotate(-9deg); }
+  50% { transform: translate(0,18px) rotate(-7deg); }
+  75% { transform: translate(0,6px) rotate(-10deg); }
+}
 .technical-label { font: 10px 'Space Grotesk', sans-serif; letter-spacing: .16em; text-transform: uppercase; }
 html[dir='rtl'] .technical-label { font-family: 'IBM Plex Sans Arabic', sans-serif; letter-spacing: 0; }
 .surface-grid { background-image: linear-gradient(to right, rgba(25,27,24,.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(25,27,24,.045) 1px, transparent 1px); background-size: 28px 28px; }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { useListCategories, useListListings } from '@workspace/api-client-react';
-import { ArrowRight, Camera, ImageIcon, RotateCcw, HandCoins, MessageCircle, Search, SlidersHorizontal, Truck, X, Layers2, Pause, Play } from 'lucide-react';
+import { ArrowRight, Camera, ImageIcon, RotateCcw, HandCoins, MessageCircle, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
 import { useLang } from '../lang';
 import { Button, EmptyState, ErrorState, ListingCard, Modal, SkeletonGrid, btn, cx, useMember } from '../ui';
 import { basePath, REQ } from '@/lib/baqi';
@@ -27,8 +27,6 @@ export default function CatalogPage() {
   const timer = useRef<number | undefined>(undefined);
   const listRef = useRef<HTMLElement>(null);
   const [photoOpen, setPhotoOpen] = useState(false);
-  const [exploded, setExploded] = useState(false);
-  const [motionPaused, setMotionPaused] = useState(false);
   const [photo, setPhoto] = useState<PhotoSearch | null>(null);
   const img = useImageSearch();
   const { user } = useMember();
@@ -89,7 +87,7 @@ export default function CatalogPage() {
   </div>;
 
   return <main>
-    <section className="overflow-hidden border-b border-border bg-background">
+    <section className="overflow-hidden border-b border-border bg-[#F3F2EC]">
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-4 px-4 pb-8 pt-7 sm:px-6 sm:pb-12 lg:min-h-[570px] lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-8 lg:px-10 lg:py-10">
         <div className="relative z-10 min-w-0 max-w-full lg:py-10">
         <p className="technical-label mb-5 flex items-center gap-3 text-muted-foreground"><span className="h-px w-9 bg-primary" />{tr('Riyadh / material exchange / 01', 'الرياض / تبادل المواد / ٠١')}</p>
@@ -114,20 +112,12 @@ export default function CatalogPage() {
         </form>
         </div>
         <div className="relative min-w-0">
-          <div className={cx('material-stage surface-grid mx-auto w-full max-w-[640px] rounded-sm', exploded && 'is-exploded', motionPaused && 'is-paused')} dir="ltr" role="group" aria-label={tr('A sculptural arrangement of limestone, timber and chrome', 'تكوين فني من الحجر والخشب والكروم')}>
+          <div className="material-stage surface-grid mx-auto w-full max-w-[640px] rounded-sm" dir="ltr" role="group" aria-label={tr('A sculptural arrangement of limestone, timber and chrome', 'تكوين فني من الحجر والخشب والكروم')}>
             <img className="material-piece tiles" src={`${basePath}/demo-tiles.jpg`} alt={tr('Stack of reusable limestone tiles', 'رصّة بلاط حجري قابل لإعادة الاستخدام')} />
             <img className="material-piece timber" src={`${basePath}/demo-timber.jpg`} alt={tr('Reusable timber boards', 'ألواح خشب قابلة لإعادة الاستخدام')} />
             <span aria-hidden="true" className="material-piece chrome" />
-            <span className="technical-label absolute start-3 top-3 z-10 bg-background/90 px-2 py-1 text-muted-foreground">{tr('Material study / Riyadh', 'دراسة المواد / الرياض')}</span>
-            <span className="technical-label absolute bottom-3 end-3 z-10 bg-background/90 px-2 py-1 text-muted-foreground">24°42′ N — 46°40′ E</span>
-          </div>
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <button type="button" onClick={() => setExploded((v) => !v)} aria-pressed={exploded} className="inline-flex min-h-11 items-center gap-2 border border-border bg-card px-3 text-xs font-semibold transition-colors hover:border-primary hover:text-primary" data-testid="button-sculpture-explode">
-              <Layers2 size={15} />{exploded ? tr('Reassemble', 'إعادة التجميع') : tr('Explode view', 'عرض تفكيكي')}
-            </button>
-            <button type="button" onClick={() => setMotionPaused((v) => !v)} aria-pressed={motionPaused} className="inline-flex min-h-11 items-center gap-2 border border-border bg-card px-3 text-xs font-semibold transition-colors hover:border-primary hover:text-primary" data-testid="button-sculpture-motion">
-              {motionPaused ? <Play size={15} /> : <Pause size={15} />}{motionPaused ? tr('Resume motion', 'استئناف الحركة') : tr('Pause motion', 'إيقاف الحركة')}
-            </button>
+            <span className="technical-label absolute start-3 top-3 z-10 bg-[#F3F2EC]/90 px-2 py-1 text-muted-foreground">{tr('Material study / Riyadh', 'دراسة المواد / الرياض')}</span>
+            <span className="technical-label absolute bottom-3 end-3 z-10 bg-[#F3F2EC]/90 px-2 py-1 text-muted-foreground">24°42′ N — 46°40′ E</span>
           </div>
         </div>
         <div className="lg:col-span-2">
