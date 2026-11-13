@@ -16,14 +16,15 @@ embedded notices are unchanged; the included original license is `LICENSE.pdf`.
 `../../styles/fonts.css` contains the centralized `@font-face` declarations.
 `../../index.css` defines the application tokens and Tailwind families:
 
-- `--app-font-sans` / `font-sans`: default Arabic and English typography,
-  including headings, forms, portals, notifications, and Clerk sign-in.
-- `--app-font-serif` / `font-serif`: opt-in Serif Text.
+- `--app-font-body` / `font-sans`: default Arabic and English UI text,
+  including forms, portals, notifications, and Clerk sign-in.
 - `--app-font-display` / `font-display`: opt-in Serif Display.
+- `--app-font-sans`: opt-in Thmanyah Sans for sans-serif content.
 
-The existing UI remains sans-serif to avoid redesigning pages. The legacy
-`font-mono` UI utility also uses the custom sans face because no monospace font
-was supplied. Numeric alignment still uses `font-variant-numeric`.
+Headings (`h1`–`h6`) use Serif Display, with Serif Text for other content. This
+uses the distinctive Thmanyah serif styling shown in the supplied reference.
+The legacy `font-mono` UI utility uses the default serif text because no
+monospace font was supplied. Numeric alignment still uses `font-variant-numeric`.
 
 There is no supplied 600 face or italic style. Browser CSS weight matching uses
 the real Bold face for existing 600 requests; synthetic bold/italics are disabled.

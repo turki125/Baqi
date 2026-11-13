@@ -28,8 +28,8 @@
   --color-amber-soft: hsl(var(--amber-soft));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
-  --font-sans: var(--app-font-sans);
-  --font-serif: var(--app-font-serif);
+  --font-sans: var(--app-font-body);
+  --font-serif: var(--app-font-body);
   --font-display: var(--app-font-display);
   --font-mono: var(--app-font-mono);
   --radius-sm: calc(var(--radius) - 4px);
@@ -60,9 +60,9 @@
   --ring: 173 86% 20%;
   --destructive: 4 66% 44%;
   --destructive-foreground: 0 0% 100%;
-  --app-font-sans: 'Thmanyah Sans', system-ui, sans-serif;
-  --app-font-serif: 'Thmanyah Serif Text', serif;
+  --app-font-body: 'Thmanyah Serif Text', serif;
   --app-font-display: 'Thmanyah Serif Display', serif;
+  --app-font-sans: 'Thmanyah Sans', system-ui, sans-serif;
   /* No custom monospace face was supplied; UI numbers still use Thmanyah. */
   --app-font-mono: var(--app-font-sans);
   --radius: 0.75rem;
@@ -98,14 +98,15 @@
   * { @apply border-border; }
   html {
     scroll-behavior: smooth;
-    font-family: var(--app-font-sans);
+    font-family: var(--app-font-body);
     font-synthesis: none;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply antialiased bg-background text-foreground;
     min-width: 320px;
     font-feature-settings: 'tnum' 0;
   }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--app-font-display); }
   button, input, select, textarea { font: inherit; }
   fieldset { min-inline-size: 0; }
   button, a { -webkit-tap-highlight-color: transparent; }
