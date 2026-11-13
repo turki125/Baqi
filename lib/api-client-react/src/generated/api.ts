@@ -25,10 +25,17 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AlertCriteria,
+  AlertEmailStatus,
+  AlertInput,
+  AlertSearchInput,
+  AlertUpdate,
+  AvailabilityAlert,
   Category,
   Conversation,
   ConversationInput,
   DemoPaymentInput,
+  GetAvailabilityUnsubscribeParams,
   HealthStatus,
   HelpAnswer,
   HelpInput,
@@ -43,6 +50,8 @@ import type {
   OrderInput,
   PhotoSuggestion,
   PhotoSuggestionInput,
+  UnsubscribeInput,
+  UnsubscribeStatus,
   UploadRequest,
   UploadUrl,
   Wallet,
@@ -2026,5 +2035,762 @@ export const useRequestUploadUrl = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getRequestUploadUrlMutationOptions(options), queryClient);
+    }
+
+export const getPreviewAvailabilityAlertUrl = () => {
+
+
+
+
+  return `/api/availability-alerts/preview`
+}
+
+export const previewAvailabilityAlert = async (alertSearchInput: AlertSearchInput, options?: Parameters<typeof customFetch>[1]): Promise<AlertCriteria> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AlertCriteria>(getPreviewAvailabilityAlertUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(alertSearchInput)
+  }
+);}
+
+
+
+
+
+export const getPreviewAvailabilityAlertMutationKey = () => ['previewAvailabilityAlert'] as const;
+
+export const getPreviewAvailabilityAlertMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof previewAvailabilityAlert>>, TError,PreviewAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof previewAvailabilityAlert>>, TError,PreviewAvailabilityAlertMutationVariables, TContext> => {
+
+const mutationKey = getPreviewAvailabilityAlertMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof previewAvailabilityAlert>>, PreviewAvailabilityAlertMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  previewAvailabilityAlert(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PreviewAvailabilityAlertMutationResult = NonNullable<Awaited<ReturnType<typeof previewAvailabilityAlert>>>
+    export type PreviewAvailabilityAlertMutationBody = BodyType<AlertSearchInput>
+    export type PreviewAvailabilityAlertMutationError = ErrorType<unknown>
+    export type PreviewAvailabilityAlertMutationVariables = {data: BodyType<AlertSearchInput>}
+
+    export const usePreviewAvailabilityAlert = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof previewAvailabilityAlert>>, TError,PreviewAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof previewAvailabilityAlert>>,
+        TError,
+        PreviewAvailabilityAlertMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPreviewAvailabilityAlertMutationOptions(options), queryClient);
+    }
+
+export const getGetAlertEmailStatusUrl = () => {
+
+
+
+
+  return `/api/availability-alerts/email-status`
+}
+
+export const getAlertEmailStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<AlertEmailStatus> => {
+
+  return customFetch<AlertEmailStatus>(getGetAlertEmailStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAlertEmailStatusQueryKey = () => {
+    return [
+    `/api/availability-alerts/email-status`
+    ] as const;
+    }
+
+
+export const getGetAlertEmailStatusQueryOptions = <TData = Awaited<ReturnType<typeof getAlertEmailStatus>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAlertEmailStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAlertEmailStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAlertEmailStatus>>> = ({ signal }) => getAlertEmailStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAlertEmailStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAlertEmailStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getAlertEmailStatus>>>
+export type GetAlertEmailStatusQueryError = ErrorType<unknown>
+
+
+export function useGetAlertEmailStatus<TData = Awaited<ReturnType<typeof getAlertEmailStatus>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAlertEmailStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAlertEmailStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getAlertEmailStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAlertEmailStatus<TData = Awaited<ReturnType<typeof getAlertEmailStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAlertEmailStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAlertEmailStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getAlertEmailStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAlertEmailStatus<TData = Awaited<ReturnType<typeof getAlertEmailStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAlertEmailStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetAlertEmailStatus<TData = Awaited<ReturnType<typeof getAlertEmailStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAlertEmailStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAlertEmailStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAvailabilityAlertsUrl = () => {
+
+
+
+
+  return `/api/availability-alerts`
+}
+
+export const listAvailabilityAlerts = async ( options?: Parameters<typeof customFetch>[1]): Promise<AvailabilityAlert[]> => {
+
+  return customFetch<AvailabilityAlert[]>(getListAvailabilityAlertsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAvailabilityAlertsQueryKey = () => {
+    return [
+    `/api/availability-alerts`
+    ] as const;
+    }
+
+
+export const getListAvailabilityAlertsQueryOptions = <TData = Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAvailabilityAlertsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAvailabilityAlerts>>> = ({ signal }) => listAvailabilityAlerts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListAvailabilityAlertsQueryResult = NonNullable<Awaited<ReturnType<typeof listAvailabilityAlerts>>>
+export type ListAvailabilityAlertsQueryError = ErrorType<unknown>
+
+
+export function useListAvailabilityAlerts<TData = Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAvailabilityAlerts>>,
+          TError,
+          Awaited<ReturnType<typeof listAvailabilityAlerts>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAvailabilityAlerts<TData = Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAvailabilityAlerts>>,
+          TError,
+          Awaited<ReturnType<typeof listAvailabilityAlerts>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAvailabilityAlerts<TData = Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListAvailabilityAlerts<TData = Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAvailabilityAlerts>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListAvailabilityAlertsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAvailabilityAlertUrl = () => {
+
+
+
+
+  return `/api/availability-alerts`
+}
+
+export const saveAvailabilityAlert = async (alertInput: AlertInput, options?: Parameters<typeof customFetch>[1]): Promise<AvailabilityAlert> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AvailabilityAlert>(getSaveAvailabilityAlertUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(alertInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAvailabilityAlertMutationKey = () => ['saveAvailabilityAlert'] as const;
+
+export const getSaveAvailabilityAlertMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAvailabilityAlert>>, TError,SaveAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAvailabilityAlert>>, TError,SaveAvailabilityAlertMutationVariables, TContext> => {
+
+const mutationKey = getSaveAvailabilityAlertMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAvailabilityAlert>>, SaveAvailabilityAlertMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveAvailabilityAlert(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAvailabilityAlertMutationResult = NonNullable<Awaited<ReturnType<typeof saveAvailabilityAlert>>>
+    export type SaveAvailabilityAlertMutationBody = BodyType<AlertInput>
+    export type SaveAvailabilityAlertMutationError = ErrorType<unknown>
+    export type SaveAvailabilityAlertMutationVariables = {data: BodyType<AlertInput>}
+
+    export const useSaveAvailabilityAlert = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAvailabilityAlert>>, TError,SaveAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveAvailabilityAlert>>,
+        TError,
+        SaveAvailabilityAlertMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAvailabilityAlertMutationOptions(options), queryClient);
+    }
+
+export const getUpdateAvailabilityAlertUrl = (id: string,) => {
+
+
+
+
+  return `/api/availability-alerts/${id}`
+}
+
+export const updateAvailabilityAlert = async (id: string,
+    alertUpdate: AlertUpdate, options?: Parameters<typeof customFetch>[1]): Promise<AvailabilityAlert> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AvailabilityAlert>(getUpdateAvailabilityAlertUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(alertUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateAvailabilityAlertMutationKey = () => ['updateAvailabilityAlert'] as const;
+
+export const getUpdateAvailabilityAlertMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAvailabilityAlert>>, TError,UpdateAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAvailabilityAlert>>, TError,UpdateAvailabilityAlertMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAvailabilityAlertMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAvailabilityAlert>>, UpdateAvailabilityAlertMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateAvailabilityAlert(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAvailabilityAlertMutationResult = NonNullable<Awaited<ReturnType<typeof updateAvailabilityAlert>>>
+    export type UpdateAvailabilityAlertMutationBody = BodyType<AlertUpdate>
+    export type UpdateAvailabilityAlertMutationError = ErrorType<unknown>
+    export type UpdateAvailabilityAlertMutationVariables = {id: string;data: BodyType<AlertUpdate>}
+
+    export const useUpdateAvailabilityAlert = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAvailabilityAlert>>, TError,UpdateAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateAvailabilityAlert>>,
+        TError,
+        UpdateAvailabilityAlertMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateAvailabilityAlertMutationOptions(options), queryClient);
+    }
+
+export const getDeleteAvailabilityAlertUrl = (id: string,) => {
+
+
+
+
+  return `/api/availability-alerts/${id}`
+}
+
+export const deleteAvailabilityAlert = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAvailabilityAlertUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAvailabilityAlertMutationKey = () => ['deleteAvailabilityAlert'] as const;
+
+export const getDeleteAvailabilityAlertMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAvailabilityAlert>>, TError,DeleteAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAvailabilityAlert>>, TError,DeleteAvailabilityAlertMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAvailabilityAlertMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAvailabilityAlert>>, DeleteAvailabilityAlertMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteAvailabilityAlert(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAvailabilityAlertMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAvailabilityAlert>>>
+
+    export type DeleteAvailabilityAlertMutationError = ErrorType<unknown>
+    export type DeleteAvailabilityAlertMutationVariables = {id: string}
+
+    export const useDeleteAvailabilityAlert = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAvailabilityAlert>>, TError,DeleteAvailabilityAlertMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAvailabilityAlert>>,
+        TError,
+        DeleteAvailabilityAlertMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteAvailabilityAlertMutationOptions(options), queryClient);
+    }
+
+export const getGetAvailabilityUnsubscribeUrl = (params: GetAvailabilityUnsubscribeParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/availability-email/unsubscribe?${stringifiedParams}` : `/api/availability-email/unsubscribe`
+}
+
+export const getAvailabilityUnsubscribe = async (params: GetAvailabilityUnsubscribeParams, options?: Parameters<typeof customFetch>[1]): Promise<UnsubscribeStatus> => {
+
+  return customFetch<UnsubscribeStatus>(getGetAvailabilityUnsubscribeUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAvailabilityUnsubscribeQueryKey = (params?: GetAvailabilityUnsubscribeParams,) => {
+    return [
+    `/api/availability-email/unsubscribe`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAvailabilityUnsubscribeQueryOptions = <TData = Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError = ErrorType<unknown>>(params: GetAvailabilityUnsubscribeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAvailabilityUnsubscribeQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>> = ({ signal }) => getAvailabilityUnsubscribe(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAvailabilityUnsubscribeQueryResult = NonNullable<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>>
+export type GetAvailabilityUnsubscribeQueryError = ErrorType<unknown>
+
+
+export function useGetAvailabilityUnsubscribe<TData = Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError = ErrorType<unknown>>(
+ params: GetAvailabilityUnsubscribeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>,
+          TError,
+          Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAvailabilityUnsubscribe<TData = Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError = ErrorType<unknown>>(
+ params: GetAvailabilityUnsubscribeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>,
+          TError,
+          Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAvailabilityUnsubscribe<TData = Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError = ErrorType<unknown>>(
+ params: GetAvailabilityUnsubscribeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetAvailabilityUnsubscribe<TData = Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError = ErrorType<unknown>>(
+ params: GetAvailabilityUnsubscribeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAvailabilityUnsubscribe>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAvailabilityUnsubscribeQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUnsubscribeAvailabilityEmailUrl = () => {
+
+
+
+
+  return `/api/availability-email/unsubscribe`
+}
+
+export const unsubscribeAvailabilityEmail = async (unsubscribeInput: UnsubscribeInput, options?: Parameters<typeof customFetch>[1]): Promise<UnsubscribeStatus> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UnsubscribeStatus>(getUnsubscribeAvailabilityEmailUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(unsubscribeInput)
+  }
+);}
+
+
+
+
+
+export const getUnsubscribeAvailabilityEmailMutationKey = () => ['unsubscribeAvailabilityEmail'] as const;
+
+export const getUnsubscribeAvailabilityEmailMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unsubscribeAvailabilityEmail>>, TError,UnsubscribeAvailabilityEmailMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof unsubscribeAvailabilityEmail>>, TError,UnsubscribeAvailabilityEmailMutationVariables, TContext> => {
+
+const mutationKey = getUnsubscribeAvailabilityEmailMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unsubscribeAvailabilityEmail>>, UnsubscribeAvailabilityEmailMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  unsubscribeAvailabilityEmail(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnsubscribeAvailabilityEmailMutationResult = NonNullable<Awaited<ReturnType<typeof unsubscribeAvailabilityEmail>>>
+    export type UnsubscribeAvailabilityEmailMutationBody = BodyType<UnsubscribeInput>
+    export type UnsubscribeAvailabilityEmailMutationError = ErrorType<unknown>
+    export type UnsubscribeAvailabilityEmailMutationVariables = {data: BodyType<UnsubscribeInput>}
+
+    export const useUnsubscribeAvailabilityEmail = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unsubscribeAvailabilityEmail>>, TError,UnsubscribeAvailabilityEmailMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof unsubscribeAvailabilityEmail>>,
+        TError,
+        UnsubscribeAvailabilityEmailMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUnsubscribeAvailabilityEmailMutationOptions(options), queryClient);
+    }
+
+export const getMarkConversationReadUrl = (id: string,) => {
+
+
+
+
+  return `/api/conversations/${id}/read`
+}
+
+export const markConversationRead = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getMarkConversationReadUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getMarkConversationReadMutationKey = () => ['markConversationRead'] as const;
+
+export const getMarkConversationReadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markConversationRead>>, TError,MarkConversationReadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof markConversationRead>>, TError,MarkConversationReadMutationVariables, TContext> => {
+
+const mutationKey = getMarkConversationReadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof markConversationRead>>, MarkConversationReadMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  markConversationRead(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type MarkConversationReadMutationResult = NonNullable<Awaited<ReturnType<typeof markConversationRead>>>
+
+    export type MarkConversationReadMutationError = ErrorType<unknown>
+    export type MarkConversationReadMutationVariables = {id: string}
+
+    export const useMarkConversationRead = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markConversationRead>>, TError,MarkConversationReadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof markConversationRead>>,
+        TError,
+        MarkConversationReadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getMarkConversationReadMutationOptions(options), queryClient);
     }
 

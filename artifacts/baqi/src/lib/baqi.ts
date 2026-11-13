@@ -1,4 +1,4 @@
-import type { Listing } from '@workspace/api-client-react';
+import type { AlertCriteria, Listing } from '@workspace/api-client-react';
 
 export type Lang = 'en' | 'ar';
 export const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -71,9 +71,27 @@ export function readPending(listingId: string): PendingReservation | null {
 }
 export function clearPending() { sessionStorage.removeItem(PENDING_KEY); }
 
+/** Unsaved availability-alert request, kept only for the guest -> sign-in hop. */
+export const ALERT_INTENT_KEY = 'baqi-availability-alert-intent';
+const ALERT_INTENT_TTL = 30 * 60 * 1000;
+export type AlertIntent = { criteria: AlertCriteria; emailEnabled: boolean; userId: string | null; at: number };
+export function saveAlertIntent(criteria: AlertCriteria, emailEnabled: boolean, userId: string | null) {
+  sessionStorage.setItem(ALERT_INTENT_KEY, JSON.stringify({ criteria, emailEnabled, userId, at: Date.now() } satisfies AlertIntent));
+}
+export function clearAlertIntent() { sessionStorage.removeItem(ALERT_INTENT_KEY); }
+export function readAlertIntent(userId: string | null): AlertIntent | null {
+  try {
+    const i = JSON.parse(sessionStorage.getItem(ALERT_INTENT_KEY) || 'null') as AlertIntent | null;
+    if (!i || typeof i.criteria !== 'object' || !i.criteria) return null;
+    if (Date.now() - (i.at || 0) > ALERT_INTENT_TTL || (i.userId && i.userId !== userId)) { clearAlertIntent(); return null; }
+    return i;
+  } catch { clearAlertIntent(); return null; }
+}
+
 export const DRAFT_KEY = 'baqi-sell-draft';
 export function clearPrivateSessionState() {
   clearPending();
+  clearAlertIntent();
   sessionStorage.removeItem(DRAFT_KEY);
 }
 

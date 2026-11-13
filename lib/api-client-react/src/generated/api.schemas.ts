@@ -108,6 +108,11 @@ export interface ListingInput {
 }
 
 export interface ListingUpdate {
+  /**
+     * @exclusiveMinimum 0
+     * @nullable
+     */
+  unitPrice?: number | null;
   /** @minimum 0 */
   quantity?: number;
   isAvailable?: boolean;
@@ -173,6 +178,14 @@ export interface ImageSearchInput {
   sort?: ImageSearchInputSort;
 }
 
+export type ConversationKind = typeof ConversationKind[keyof typeof ConversationKind];
+
+
+export const ConversationKind = {
+  listing: 'listing',
+  availability: 'availability',
+} as const;
+
 export interface Conversation {
   id: string;
   listingId: string;
@@ -180,11 +193,53 @@ export interface Conversation {
   participantName: string;
   lastMessage: string;
   updatedAt: string;
+  kind?: ConversationKind;
+  /** @minimum 0 */
+  unreadCount?: number;
 }
 
 export interface ConversationInput {
   listingId: string;
   initialMessage?: string;
+}
+
+export type AvailabilityCardSaleMode = typeof AvailabilityCardSaleMode[keyof typeof AvailabilityCardSaleMode];
+
+
+export const AvailabilityCardSaleMode = {
+  partial: 'partial',
+  full_lot: 'full_lot',
+} as const;
+
+export type AvailabilityCardAlertStatus = typeof AvailabilityCardAlertStatus[keyof typeof AvailabilityCardAlertStatus];
+
+
+export const AvailabilityCardAlertStatus = {
+  active: 'active',
+  paused: 'paused',
+  deleted: 'deleted',
+} as const;
+
+export interface AvailabilityCard {
+  alertId: string;
+  listingId: string;
+  title: string;
+  /** @nullable */
+  photo?: string | null;
+  quantity: number;
+  unit: string;
+  neighborhood: string;
+  isFree: boolean;
+  /** @nullable */
+  unitPrice?: number | null;
+  saleMode: AvailabilityCardSaleMode;
+  available: boolean;
+  alertStatus: AvailabilityCardAlertStatus;
+  visual: boolean;
+  /** @nullable */
+  requestedQuantity: number | null;
+  purchaseQuantity: number;
+  totalPrice: number;
 }
 
 export interface Message {
@@ -194,6 +249,145 @@ export interface Message {
   senderName: string;
   content: string;
   createdAt: string;
+  availability?: AvailabilityCard;
+}
+
+export type AlertSearchInputCondition = typeof AlertSearchInputCondition[keyof typeof AlertSearchInputCondition];
+
+
+export const AlertSearchInputCondition = {
+  new: 'new',
+  like_new: 'like_new',
+  used: 'used',
+} as const;
+
+export interface AlertSearchInput {
+  /** @maxLength 300 */
+  q?: string;
+  /** @maxLength 60 */
+  categoryId?: string;
+  condition?: AlertSearchInputCondition;
+  freeOnly?: boolean;
+  /** @exclusiveMinimum 0 */
+  minQuantity?: number;
+  /** @maxLength 40 */
+  unit?: string;
+  /** @maxLength 500 */
+  objectPath?: string;
+}
+
+export type AlertCriteriaCondition = typeof AlertCriteriaCondition[keyof typeof AlertCriteriaCondition];
+
+
+export const AlertCriteriaCondition = {
+  new: 'new',
+  like_new: 'like_new',
+  used: 'used',
+} as const;
+
+export interface AlertCriteria {
+  /** @maxLength 300 */
+  requestText?: string;
+  /** @maxLength 300 */
+  keywords?: string;
+  /** @maxLength 100 */
+  material?: string;
+  /** @maxLength 80 */
+  color?: string;
+  /** @maxLength 80 */
+  dimensions?: string;
+  /** @maxLength 100 */
+  model?: string;
+  /** @maxLength 100 */
+  finish?: string;
+  /**
+     * @maximum 100000000
+     * @exclusiveMinimum 0
+     */
+  quantity?: number;
+  /** @maxLength 40 */
+  unit?: string;
+  /**
+     * @minimum 0
+     * @maximum 100000000
+     */
+  budget?: number;
+  /**
+     * @minimum 0
+     * @maximum 100000000
+     */
+  maxUnitPrice?: number;
+  /** @maxLength 100 */
+  neighborhood?: string;
+  /** @maxLength 60 */
+  categoryId?: string;
+  condition?: AlertCriteriaCondition;
+  freeOnly?: boolean;
+  /** @maxLength 500 */
+  objectPath?: string;
+}
+
+export interface AlertInput {
+  criteria: AlertCriteria;
+  emailEnabled: boolean;
+}
+
+export type AlertUpdateStatus = typeof AlertUpdateStatus[keyof typeof AlertUpdateStatus];
+
+
+export const AlertUpdateStatus = {
+  active: 'active',
+  paused: 'paused',
+} as const;
+
+export interface AlertUpdate {
+  status?: AlertUpdateStatus;
+  emailEnabled?: boolean;
+}
+
+export type AvailabilityAlertStatus = typeof AvailabilityAlertStatus[keyof typeof AvailabilityAlertStatus];
+
+
+export const AvailabilityAlertStatus = {
+  active: 'active',
+  paused: 'paused',
+} as const;
+
+export interface AvailabilityAlert {
+  id: string;
+  criteria: AlertCriteria;
+  status: AvailabilityAlertStatus;
+  emailEnabled: boolean;
+  createdAt: string;
+  matchCount: number;
+  existing?: boolean;
+}
+
+export type AlertEmailStatusDeliveryMode = typeof AlertEmailStatusDeliveryMode[keyof typeof AlertEmailStatusDeliveryMode];
+
+
+export const AlertEmailStatusDeliveryMode = {
+  local: 'local',
+  resend: 'resend',
+  unavailable: 'unavailable',
+} as const;
+
+export interface AlertEmailStatus {
+  maskedEmail: string;
+  verified: boolean;
+  deliveryMode: AlertEmailStatusDeliveryMode;
+}
+
+export interface UnsubscribeInput {
+  /**
+     * @minLength 32
+     * @maxLength 128
+     */
+  token: string;
+}
+
+export interface UnsubscribeStatus {
+  emailEnabled: boolean;
 }
 
 export interface MessageInput {
@@ -386,4 +580,12 @@ export const ListListingsSort = {
   price_low: 'price_low',
   price_high: 'price_high',
 } as const;
+
+export type GetAvailabilityUnsubscribeParams = {
+/**
+ * @minLength 32
+ * @maxLength 128
+ */
+token: string;
+};
 

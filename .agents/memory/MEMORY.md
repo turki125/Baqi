@@ -1,1 +1,2 @@
 - [Thmanyah publishing permission](thmanyah-publishing-permission.md) — confirm web-embedding rights before publishing; fingerprinted font URLs do not prevent extraction.
+- [Availability alert scope](availability-alert-scope.md) — Messages is the only in-app alert destination; local email testing must not be described as live delivery.

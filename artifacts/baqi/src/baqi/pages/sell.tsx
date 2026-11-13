@@ -329,12 +329,13 @@ function EditListing({ id }: { id: string }) {
   const [quantity, setQuantity] = useState('');
   const [pickupDetails, setPickupDetails] = useState('');
   const [mapUrl, setMapUrl] = useState('');
-  const [errors, setErrors] = useState<{ quantity?: string; pickupDetails?: string; mapUrl?: string }>({});
+  const [unitPrice, setUnitPrice] = useState('');
+  const [errors, setErrors] = useState<{ unitPrice?: string; quantity?: string; pickupDetails?: string; mapUrl?: string }>({});
   const init = useRef<string | null>(null);
   useEffect(() => {
     if (listing.data && init.current !== id) {
       init.current = id;
-      setQuantity(String(listing.data.quantity)); setPickupDetails(listing.data.pickupDetails); setMapUrl(listing.data.mapUrl ?? '');
+      setQuantity(String(listing.data.quantity)); setPickupDetails(listing.data.pickupDetails); setMapUrl(listing.data.mapUrl ?? ''); setUnitPrice(!listing.data.isFree && listing.data.unitPrice != null ? String(listing.data.unitPrice) : '');
     }
   }, [listing.data, id]);
   if (listing.isLoading) return <main className="mx-auto max-w-2xl px-4 py-8"><SkeletonRows rows={3} /></main>;
@@ -349,11 +350,13 @@ function EditListing({ id }: { id: string }) {
     const er: typeof errors = {};
     if (!Number.isFinite(Number(quantity)) || !(Number(quantity) >= 0) || quantity.trim() === '') er.quantity = tr('Enter zero or more.', 'أدخل صفراً أو أكثر.');
     else if (current.saleMode === 'partial' && Number(quantity) > 0 && Number(quantity) < current.minimumIncrement) er.quantity = tr(`Enter at least ${current.minimumIncrement}, or zero to remove the listing from browsing.`, `أدخل ${current.minimumIncrement} على الأقل، أو صفراً لإزالة الإعلان من التصفح.`);
+    const priceChanged = !current.isFree && unitPrice.trim() !== '' && Number(unitPrice) !== current.unitPrice;
+    if (!current.isFree && unitPrice.trim() !== '' && !(Number.isFinite(Number(unitPrice)) && Number(unitPrice) > 0)) er.unitPrice = tr('Enter a price greater than zero.', 'أدخل سعراً أكبر من صفر.');
     if (!pickupDetails.trim()) er.pickupDetails = tr('Pickup details are required.', 'تفاصيل الاستلام مطلوبة.');
     if (mapUrl.trim() && !/^https?:\/\//i.test(mapUrl.trim())) er.mapUrl = tr('Use a full link starting with https://', 'استخدم رابطاً كاملاً يبدأ بـ https://');
     setErrors(er);
     if (Object.keys(er).length || update.isPending) return;
-    update.mutate({ id, data: { quantity: Number(quantity), pickupDetails: pickupDetails.trim(), mapUrl: mapUrl.trim() || null } }, {
+    update.mutate({ id, data: { quantity: Number(quantity), pickupDetails: pickupDetails.trim(), mapUrl: mapUrl.trim() || null, ...(priceChanged ? { unitPrice: Number(unitPrice) } : {}) } }, {
       onSuccess: async () => { await qc.invalidateQueries({ queryKey: getGetListingQueryKey(id) }); await qc.invalidateQueries({ queryKey: getListListingsQueryKey() }); setLocation(`/listing/${id}`); },
     });
   };
@@ -361,7 +364,10 @@ function EditListing({ id }: { id: string }) {
     <BackLink href={`/listing/${id}`}>{tr('Back to listing', 'العودة للإعلان')}</BackLink>
     <PageTitle title={tr('Update listing', 'تحديث الإعلان')} subtitle={listing.data.title} />
     <form onSubmit={submit} noValidate><Card className="space-y-5 p-5 sm:p-6">
-      <p className="rounded-xl bg-muted p-3 text-[13px] leading-5 text-muted-foreground">{tr('You can update the available quantity, pickup details and map link. Other details are fixed once published.', 'يمكنك تحديث الكمية المتاحة وتفاصيل الاستلام ورابط الخريطة. التفاصيل الأخرى ثابتة بعد النشر.')}</p>
+      <p className="rounded-xl bg-muted p-3 text-[13px] leading-5 text-muted-foreground">{current.isFree ? tr('You can update the available quantity, pickup details and map link. Other details are fixed once published.', 'يمكنك تحديث الكمية المتاحة وتفاصيل الاستلام ورابط الخريطة. التفاصيل الأخرى ثابتة بعد النشر.') : tr('You can update the price per unit, available quantity, pickup details and map link. Other details are fixed once published.', 'يمكنك تحديث سعر الوحدة والكمية المتاحة وتفاصيل الاستلام ورابط الخريطة. التفاصيل الأخرى ثابتة بعد النشر.')}</p>
+      {!current.isFree && <Field label={`${tr('Price per unit (SAR)', 'سعر الوحدة (ر.س)')} / ${current.unit}`} htmlFor="e-price" optional error={errors.unitPrice} hint={tr('Leave as is to keep the current price.', 'اتركه كما هو للإبقاء على السعر الحالي.')}>
+        <input id="e-price" type="number" min="0" step="0.01" inputMode="decimal" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} className="field num" aria-invalid={!!errors.unitPrice} data-testid="input-edit-unit-price" />
+      </Field>}
       <Field label={`${tr('Available quantity', 'الكمية المتاحة')} (${listing.data.unit})`} htmlFor="e-quantity" error={errors.quantity}>
         <input id="e-quantity" type="number" min="0" step="any" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="field num" aria-invalid={!!errors.quantity} data-testid="input-edit-quantity" />
       </Field>

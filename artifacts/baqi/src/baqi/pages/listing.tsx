@@ -246,7 +246,7 @@ export default function ListingPage() {
           <h2 className="text-base font-semibold">{tr('Pickup', 'الاستلام')}</h2>
           <p className="mt-2 whitespace-pre-line text-[15px] leading-7 text-foreground/85">{item.pickupDetails}</p>
           {item.mapUrl && <a href={item.mapUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary" data-testid="link-map">{tr('Open pickup location in maps', 'افتح موقع الاستلام في الخرائط')}<ExternalLink size={14} /></a>}
-          {isOwner && <Link href={`/sell?edit=${item.id}`} className="mt-3 flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary" data-testid="link-edit-listing"><Pencil size={14} />{tr('Update quantity or pickup details', 'تحديث الكمية أو تفاصيل الاستلام')}</Link>}
+          {isOwner && <Link href={`/sell?edit=${item.id}`} className="mt-3 flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary" data-testid="link-edit-listing"><Pencil size={14} />{item.isFree ? tr('Update quantity or pickup details', 'تحديث الكمية أو تفاصيل الاستلام') : tr('Update price, quantity or pickup details', 'تحديث السعر أو الكمية أو تفاصيل الاستلام')}</Link>}
         </Card>
         <Card className="p-5">
           <h2 className="sr-only">{tr('Seller', 'البائع')}</h2>

@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AvailabilityCard } from './availabilityCard';
 
 export interface Message {
   id: string;
@@ -13,4 +14,5 @@ export interface Message {
   senderName: string;
   content: string;
   createdAt: Date;
+  availability?: AvailabilityCard;
 }

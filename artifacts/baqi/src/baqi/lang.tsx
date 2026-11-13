@@ -27,7 +27,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       ['/listing/', 'Material details', 'تفاصيل المادة'], ['/sell', 'Sell materials', 'بِع موادك'],
       ['/messages/', 'Conversation', 'المحادثة'], ['/messages', 'Messages', 'الرسائل'],
       ['/orders/', 'Order details', 'تفاصيل الطلب'], ['/orders', 'Orders', 'الطلبات'],
-      ['/wallet', 'Wallet', 'المحفظة'], ['/account', 'Account', 'الحساب'], ['/help', 'Help', 'المساعدة'],
+      ['/wallet', 'Wallet', 'المحفظة'], ['/account/alerts', 'My alerts', 'تنبيهاتي'], ['/email-unsubscribe', 'Email alerts', 'تنبيهات البريد'], ['/account', 'Account', 'الحساب'], ['/help', 'Help', 'المساعدة'],
     ];
     const label = labels.find(([path]) => location.startsWith(path));
     const title = label ? `${label[lang === 'ar' ? 2 : 1]} · ${lang === 'ar' ? 'باقي' : 'Baqi'}`

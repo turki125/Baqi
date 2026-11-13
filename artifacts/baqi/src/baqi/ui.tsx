@@ -3,13 +3,14 @@ import { Link, useLocation } from 'wouter';
 import { useClerk, useUser } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { getListConversationsQueryKey, useListConversations } from '@workspace/api-client-react';
 import type { Listing } from '@workspace/api-client-react';
 import {
   AlertCircle, ArrowLeft, BadgeCheck, CircleHelp, ImageOff, Languages, LockKeyhole, MapPin,
-  MessageCircle, PackageOpen, Plus, RotateCcw, Search, ShoppingBag, UserRound, X, FlaskConical,
+  MessageCircle, PackageOpen, Plus, RotateCcw, Search, SearchCheck, ShoppingBag, UserRound, X, FlaskConical,
 } from 'lucide-react';
 import { useLang } from './lang';
-import { basePath, clearPrivateSessionState, initials, photoUrl, signInHref } from '@/lib/baqi';
+import { REQ, basePath, clearPrivateSessionState, initials, photoUrl, signInHref } from '@/lib/baqi';
 
 export function cx(...parts: Array<string | false | null | undefined>) { return parts.filter(Boolean).join(' '); }
 
@@ -235,6 +236,20 @@ export function useSignOut() {
   return () => { clearPrivateSessionState(); qc.clear(); void signOut({ redirectUrl: basePath || '/' }); };
 }
 
+/** Total unread across the inbox, including Baqi Alerts. Messages is the only in-app alert destination. */
+export function useUnreadMessages() {
+  const { user } = useMember();
+  const q = useListConversations({ query: { queryKey: getListConversationsQueryKey(), enabled: !!user, refetchInterval: 30_000, refetchIntervalInBackground: false }, request: REQ });
+  return user ? (q.data ?? []).reduce((sum, c) => sum + (c.unreadCount ?? 0), 0) : 0;
+}
+
+export function UnreadBadge({ count, className }: { count: number; className?: string }) {
+  const { tr, num } = useLang();
+  if (!count) return null;
+  return <span className={cx('pop inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold leading-none text-accent-foreground ring-2 ring-card num', className)} data-testid="badge-unread-messages">
+    <span aria-hidden>{count > 99 ? '99+' : num(count)}</span><span className="sr-only">{tr(`${count} unread`, `${count} غير مقروءة`)}</span></span>;
+}
+
 function isActive(location: string, href: string) {
   return href === '/' ? location === '/' || location.startsWith('/listing') : location.startsWith(href);
 }
@@ -243,6 +258,7 @@ export function Header() {
   const { tr, toggle, isAr } = useLang();
   const [location] = useLocation();
   const { user } = useMember();
+  const unread = useUnreadMessages();
   const nav = [
     { href: '/', label: tr('Browse', 'تصفح'), icon: Search },
     { href: '/messages', label: tr('Messages', 'الرسائل'), icon: MessageCircle },
@@ -255,13 +271,14 @@ export function Header() {
         {nav.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-current={isActive(location, href) ? 'page' : undefined}
           data-testid={`link-nav-${href.slice(1) || 'browse'}`}
           className={cx('inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold no-underline transition-colors', isActive(location, href) ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
-          <Icon size={17} /><span>{label}</span></Link>)}
+          <Icon size={17} /><span>{label}</span>{href === '/messages' && <UnreadBadge count={unread} />}</Link>)}
       </nav>
       <div className="ms-auto flex items-center gap-1.5">
         <button type="button" onClick={toggle} className={cx(btn('ghost', 'sm'), 'min-h-10')} data-testid="button-language" aria-label={tr('Switch to Arabic', 'التبديل إلى الإنجليزية')}>
           <Languages size={17} /><span className={isAr ? 'font-sans' : ''} lang={isAr ? 'en' : 'ar'}>{isAr ? 'English' : 'العربية'}</span>
         </button>
         <Link href="/help" className="hidden size-10 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground sm:grid" aria-label={tr('Help', 'المساعدة')} data-testid="link-help"><CircleHelp size={19} /></Link>
+        {user && <Link href="/account/alerts" className={cx(btn('ghost', 'sm'), 'hidden min-h-10 lg:inline-flex', location.startsWith('/account/alerts') && 'bg-secondary text-primary')} data-testid="link-header-alerts"><SearchCheck size={17} />إدارة تنبيهاتي</Link>}
         <div className="hidden items-center gap-1.5 md:flex">
         <Link href="/sell" className={btn('primary')} data-testid="link-sell"><Plus size={17} />{tr('Sell materials', 'بِع موادك')}</Link>
         {user ? <Link href="/account" aria-label={tr('Account', 'الحساب')} title={user.name} data-testid="link-account"
@@ -276,6 +293,7 @@ export function Header() {
 export function MobileNav() {
   const { tr } = useLang();
   const [location] = useLocation();
+  const unread = useUnreadMessages();
   const items = [
     { href: '/', label: tr('Browse', 'تصفح'), icon: Search },
     { href: '/messages', label: tr('Messages', 'الرسائل'), icon: MessageCircle },
@@ -289,7 +307,7 @@ export function MobileNav() {
         const active = href === '/account' ? location.startsWith('/account') || location.startsWith('/wallet') || location.startsWith('/help') : isActive(location, href);
         return <li key={href}><Link href={href} aria-current={active ? 'page' : undefined} data-testid={`link-mobile-${href.slice(1) || 'browse'}`}
           className={cx('flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold no-underline', active ? 'text-primary' : 'text-muted-foreground')}>
-          <span className={cx('grid place-items-center rounded-lg transition-colors', primary ? 'size-8 bg-primary text-primary-foreground' : cx('h-7 w-11', active && 'bg-secondary'))}><Icon size={primary ? 18 : 19} /></span>
+          <span className={cx('relative grid place-items-center rounded-lg transition-colors', primary ? 'size-8 bg-primary text-primary-foreground' : cx('h-7 w-11', active && 'bg-secondary'))}><Icon size={primary ? 18 : 19} />{href === '/messages' && <UnreadBadge count={unread} className="absolute -top-1 end-0.5" />}</span>
           <span className="max-w-full truncate px-0.5">{label}</span></Link></li>;
       })}
     </ul>

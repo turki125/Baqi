@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetWalletQueryKey, useAskHelp, useGetWallet, useRequestWithdrawal } from '@workspace/api-client-react';
 import type { WalletTransaction } from '@workspace/api-client-react';
-import { ArrowDownLeft, ArrowUpRight, ChevronRight, CircleHelp, Home, Languages, LogOut, MessageCircle, Plus, Send, ShoppingBag, Wallet } from 'lucide-react';
+import { SearchCheck, ArrowDownLeft, ArrowUpRight, ChevronRight, CircleHelp, Home, Languages, LogOut, MessageCircle, Plus, Send, ShoppingBag, Wallet } from 'lucide-react';
 import { useLang } from '../lang';
 import { BackLink, Badge, Button, Card, EmptyState, ErrorState, Field, PageTitle, Protected, SimulationNote, SkeletonRows, Spinner, btn, cx, useMember, useSignOut } from '../ui';
 import { REQ, basePath, initials, signInHref } from '@/lib/baqi';
@@ -15,6 +15,7 @@ export function AccountPage() {
   const rows = [
     { href: '/orders', icon: ShoppingBag, t: tr('Orders', 'الطلبات'), s: tr('Reservations, pickups and payments', 'الحجوزات والاستلام والمدفوعات') },
     { href: '/messages', icon: MessageCircle, t: tr('Messages', 'الرسائل'), s: tr('Conversations with buyers and sellers', 'المحادثات مع البائعين والمشترين') },
+    { href: '/account/alerts', icon: SearchCheck, t: 'إدارة تنبيهاتي', s: tr('Saved searches, pause, resume and email', 'عمليات البحث المحفوظة والإيقاف والبريد') },
     { href: '/wallet', icon: Wallet, t: tr('Wallet', 'المحفظة'), s: tr('Sale proceeds and simulated withdrawals', 'عوائد البيع والسحوبات التجريبية') },
     { href: '/sell', icon: Plus, t: tr('Sell materials', 'بِع موادك'), s: tr('List surplus in three steps', 'اعرض الفائض في ثلاث خطوات') },
     { href: '/help', icon: CircleHelp, t: tr('Help', 'المساعدة'), s: tr('Deposits, pickup and how Baqi works', 'العربون والاستلام وطريقة عمل باقي') },
@@ -31,7 +32,7 @@ export function AccountPage() {
     </Card>}
     <Card className="overflow-hidden">
       <ul>{rows.map((r) => <li key={r.href} className="border-b border-border last:border-b-0">
-        <Link href={r.href} className="flex min-h-16 items-center gap-4 px-5 py-3 text-foreground no-underline hover:bg-muted/60" data-testid={`link-account-${r.href.slice(1)}`}>
+        <Link href={r.href} className="flex min-h-16 items-center gap-4 px-5 py-3 text-foreground no-underline hover:bg-muted/60" data-testid={`link-account-${r.href.slice(1).replace('/', '-')}`}>
           <span className="grid size-10 place-items-center rounded-xl bg-secondary text-primary"><r.icon size={19} /></span>
           <span className="flex-1"><span className="block font-semibold">{r.t}</span><span className="block text-[13px] text-muted-foreground">{r.s}</span></span>
           <ChevronRight size={18} className="rtl-flip text-muted-foreground" /></Link></li>)}

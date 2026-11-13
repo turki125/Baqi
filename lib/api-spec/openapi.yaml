@@ -423,6 +423,113 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UploadUrl"
+  /availability-alerts/preview:
+    post:
+      operationId: previewAvailabilityAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AlertSearchInput" }
+      responses:
+        "200":
+          description: Editable criteria extracted only from supplied search constraints
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AlertCriteria" }
+  /availability-alerts/email-status:
+    get:
+      operationId: getAlertEmailStatus
+      security: [{ clerkSession: [] }]
+      responses:
+        "200":
+          description: Account email eligibility and delivery mode
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AlertEmailStatus" }
+  /availability-alerts:
+    get:
+      operationId: listAvailabilityAlerts
+      security: [{ clerkSession: [] }]
+      responses:
+        "200":
+          description: Own saved searches
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AvailabilityAlert" }
+    post:
+      operationId: saveAvailabilityAlert
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AlertInput" }
+      responses:
+        "200":
+          description: Saved or existing equivalent alert
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AvailabilityAlert" }
+  /availability-alerts/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateAvailabilityAlert
+      security: [{ clerkSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AlertUpdate" }
+      responses:
+        "200":
+          description: Updated own alert
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AvailabilityAlert" }
+    delete:
+      operationId: deleteAvailabilityAlert
+      security: [{ clerkSession: [] }]
+      responses:
+        "204": { description: Deleted saved search; past messages remain readable }
+  /availability-email/unsubscribe:
+    get:
+      operationId: getAvailabilityUnsubscribe
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string, minLength: 32, maxLength: 128 }
+      responses:
+        "200":
+          description: Confirmation without changing preferences
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UnsubscribeStatus" }
+    post:
+      operationId: unsubscribeAvailabilityEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UnsubscribeInput" }
+      responses:
+        "200":
+          description: Email disabled for this search only
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UnsubscribeStatus" }
+  /conversations/{id}/read:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    post:
+      operationId: markConversationRead
+      security: [{ clerkSession: [] }]
+      responses:
+        "204": { description: Own conversation marked read }
 components:
   securitySchemes:
     clerkSession:
@@ -500,6 +607,7 @@ components:
     ListingUpdate:
       type: object
       properties:
+        unitPrice: { type: ["number", "null"], exclusiveMinimum: 0 }
         quantity: { type: number, minimum: 0 }
         isAvailable: { type: boolean }
         phone: { type: ["string", "null"] }
@@ -542,6 +650,8 @@ components:
         participantName: { type: string }
         lastMessage: { type: string }
         updatedAt: { type: string, format: date-time }
+        kind: { type: string, enum: [listing, availability] }
+        unreadCount: { type: integer, minimum: 0 }
     ConversationInput:
       type: object
       required: [listingId]
@@ -558,6 +668,96 @@ components:
         senderName: { type: string }
         content: { type: string }
         createdAt: { type: string, format: date-time }
+        availability:
+          $ref: "#/components/schemas/AvailabilityCard"
+    AlertSearchInput:
+      type: object
+      properties:
+        q: { type: string, maxLength: 300 }
+        categoryId: { type: string, maxLength: 60 }
+        condition: { type: string, enum: [new, like_new, used] }
+        freeOnly: { type: boolean }
+        minQuantity: { type: number, exclusiveMinimum: 0 }
+        unit: { type: string, maxLength: 40 }
+        objectPath: { type: string, maxLength: 500 }
+    AlertCriteria:
+      type: object
+      properties:
+        requestText: { type: string, maxLength: 300 }
+        keywords: { type: string, maxLength: 300 }
+        material: { type: string, maxLength: 100 }
+        color: { type: string, maxLength: 80 }
+        dimensions: { type: string, maxLength: 80 }
+        model: { type: string, maxLength: 100 }
+        finish: { type: string, maxLength: 100 }
+        quantity: { type: number, exclusiveMinimum: 0, maximum: 100000000 }
+        unit: { type: string, maxLength: 40 }
+        budget: { type: number, minimum: 0, maximum: 100000000 }
+        maxUnitPrice: { type: number, minimum: 0, maximum: 100000000 }
+        neighborhood: { type: string, maxLength: 100 }
+        categoryId: { type: string, maxLength: 60 }
+        condition: { type: string, enum: [new, like_new, used] }
+        freeOnly: { type: boolean }
+        objectPath: { type: string, maxLength: 500 }
+    AlertInput:
+      type: object
+      required: [criteria, emailEnabled]
+      properties:
+        criteria: { $ref: "#/components/schemas/AlertCriteria" }
+        emailEnabled: { type: boolean }
+    AlertUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [active, paused] }
+        emailEnabled: { type: boolean }
+    AvailabilityAlert:
+      type: object
+      required: [id, criteria, status, emailEnabled, createdAt, matchCount]
+      properties:
+        id: { type: string }
+        criteria: { $ref: "#/components/schemas/AlertCriteria" }
+        status: { type: string, enum: [active, paused] }
+        emailEnabled: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        matchCount: { type: integer }
+        existing: { type: boolean }
+    AlertEmailStatus:
+      type: object
+      required: [maskedEmail, verified, deliveryMode]
+      properties:
+        maskedEmail: { type: string }
+        verified: { type: boolean }
+        deliveryMode: { type: string, enum: [local, resend, unavailable] }
+    AvailabilityCard:
+      type: object
+      required: [alertId, listingId, title, quantity, unit, neighborhood, isFree, saleMode, available, alertStatus, visual, requestedQuantity, purchaseQuantity, totalPrice]
+      properties:
+        alertId: { type: string }
+        listingId: { type: string }
+        title: { type: string }
+        photo: { type: ["string", "null"] }
+        quantity: { type: number }
+        unit: { type: string }
+        neighborhood: { type: string }
+        isFree: { type: boolean }
+        unitPrice: { type: ["number", "null"] }
+        saleMode: { type: string, enum: [partial, full_lot] }
+        available: { type: boolean }
+        alertStatus: { type: string, enum: [active, paused, deleted] }
+        visual: { type: boolean }
+        requestedQuantity: { type: ["number", "null"] }
+        purchaseQuantity: { type: number }
+        totalPrice: { type: number }
+    UnsubscribeInput:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string, minLength: 32, maxLength: 128 }
+    UnsubscribeStatus:
+      type: object
+      required: [emailEnabled]
+      properties:
+        emailEnabled: { type: boolean }
     MessageInput:
       type: object
       required: [content]

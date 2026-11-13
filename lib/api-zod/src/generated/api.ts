@@ -183,11 +183,14 @@ export const UpdateListingParams = zod.object({
   "id": zod.coerce.string().min(1)
 })
 
+export const updateListingBodyUnitPriceExclusiveMin = 0;
+
 export const updateListingBodyQuantityMin = 0;
 
 
 
 export const UpdateListingBody = zod.object({
+  "unitPrice": zod.number().gt(updateListingBodyUnitPriceExclusiveMin).nullish(),
   "quantity": zod.number().min(updateListingBodyQuantityMin).optional(),
   "isAvailable": zod.boolean().optional(),
   "phone": zod.string().nullish(),
@@ -302,13 +305,19 @@ export const SearchByImageResponse = zod.array(SearchByImageResponseItem)
 /**
  * @summary List your private conversations
  */
+export const listConversationsResponseUnreadCountMin = 0;
+
+
+
 export const ListConversationsResponseItem = zod.object({
   "id": zod.string(),
   "listingId": zod.string(),
   "listingTitle": zod.string(),
   "participantName": zod.string(),
   "lastMessage": zod.string(),
-  "updatedAt": zod.coerce.date()
+  "updatedAt": zod.coerce.date(),
+  "kind": zod.enum(['listing', 'availability']).optional(),
+  "unreadCount": zod.number().int().min(listConversationsResponseUnreadCountMin).optional()
 })
 export const ListConversationsResponse = zod.array(ListConversationsResponseItem)
 
@@ -321,13 +330,19 @@ export const CreateConversationBody = zod.object({
   "initialMessage": zod.string().optional()
 })
 
+export const createConversationResponseUnreadCountMin = 0;
+
+
+
 export const CreateConversationResponse = zod.object({
   "id": zod.string(),
   "listingId": zod.string(),
   "listingTitle": zod.string(),
   "participantName": zod.string(),
   "lastMessage": zod.string(),
-  "updatedAt": zod.coerce.date()
+  "updatedAt": zod.coerce.date(),
+  "kind": zod.enum(['listing', 'availability']).optional(),
+  "unreadCount": zod.number().int().min(createConversationResponseUnreadCountMin).optional()
 })
 
 
@@ -347,7 +362,25 @@ export const ListMessagesResponseItem = zod.object({
   "senderId": zod.string(),
   "senderName": zod.string(),
   "content": zod.string(),
-  "createdAt": zod.coerce.date()
+  "createdAt": zod.coerce.date(),
+  "availability": zod.object({
+  "alertId": zod.string(),
+  "listingId": zod.string(),
+  "title": zod.string(),
+  "photo": zod.string().nullish(),
+  "quantity": zod.number(),
+  "unit": zod.string(),
+  "neighborhood": zod.string(),
+  "isFree": zod.boolean(),
+  "unitPrice": zod.number().nullish(),
+  "saleMode": zod.enum(['partial', 'full_lot']),
+  "available": zod.boolean(),
+  "alertStatus": zod.enum(['active', 'paused', 'deleted']),
+  "visual": zod.boolean(),
+  "requestedQuantity": zod.number().nullable(),
+  "purchaseQuantity": zod.number(),
+  "totalPrice": zod.number()
+}).optional()
 })
 export const ListMessagesResponse = zod.array(ListMessagesResponseItem)
 
@@ -376,7 +409,25 @@ export const SendMessageResponse = zod.object({
   "senderId": zod.string(),
   "senderName": zod.string(),
   "content": zod.string(),
-  "createdAt": zod.coerce.date()
+  "createdAt": zod.coerce.date(),
+  "availability": zod.object({
+  "alertId": zod.string(),
+  "listingId": zod.string(),
+  "title": zod.string(),
+  "photo": zod.string().nullish(),
+  "quantity": zod.number(),
+  "unit": zod.string(),
+  "neighborhood": zod.string(),
+  "isFree": zod.boolean(),
+  "unitPrice": zod.number().nullish(),
+  "saleMode": zod.enum(['partial', 'full_lot']),
+  "available": zod.boolean(),
+  "alertStatus": zod.enum(['active', 'paused', 'deleted']),
+  "visual": zod.boolean(),
+  "requestedQuantity": zod.number().nullable(),
+  "purchaseQuantity": zod.number(),
+  "totalPrice": zod.number()
+}).optional()
 })
 
 
@@ -592,5 +643,386 @@ export const RequestUploadUrlResponse = zod.object({
   "uploadURL": zod.string().url(),
   "objectPath": zod.string()
 })
+
+
+export const previewAvailabilityAlertBodyQMax = 300;
+
+export const previewAvailabilityAlertBodyCategoryIdMax = 60;
+
+export const previewAvailabilityAlertBodyMinQuantityExclusiveMin = 0;
+
+export const previewAvailabilityAlertBodyUnitMax = 40;
+
+export const previewAvailabilityAlertBodyObjectPathMax = 500;
+
+
+
+export const PreviewAvailabilityAlertBody = zod.object({
+  "q": zod.string().max(previewAvailabilityAlertBodyQMax).optional(),
+  "categoryId": zod.string().max(previewAvailabilityAlertBodyCategoryIdMax).optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "minQuantity": zod.number().gt(previewAvailabilityAlertBodyMinQuantityExclusiveMin).optional(),
+  "unit": zod.string().max(previewAvailabilityAlertBodyUnitMax).optional(),
+  "objectPath": zod.string().max(previewAvailabilityAlertBodyObjectPathMax).optional()
+})
+
+export const previewAvailabilityAlertResponseRequestTextMax = 300;
+
+export const previewAvailabilityAlertResponseKeywordsMax = 300;
+
+export const previewAvailabilityAlertResponseMaterialMax = 100;
+
+export const previewAvailabilityAlertResponseColorMax = 80;
+
+export const previewAvailabilityAlertResponseDimensionsMax = 80;
+
+export const previewAvailabilityAlertResponseModelMax = 100;
+
+export const previewAvailabilityAlertResponseFinishMax = 100;
+
+export const previewAvailabilityAlertResponseQuantityExclusiveMin = 0;
+export const previewAvailabilityAlertResponseQuantityMax = 100000000;
+
+export const previewAvailabilityAlertResponseUnitMax = 40;
+
+export const previewAvailabilityAlertResponseBudgetMin = 0;
+export const previewAvailabilityAlertResponseBudgetMax = 100000000;
+
+export const previewAvailabilityAlertResponseMaxUnitPriceMin = 0;
+export const previewAvailabilityAlertResponseMaxUnitPriceMax = 100000000;
+
+export const previewAvailabilityAlertResponseNeighborhoodMax = 100;
+
+export const previewAvailabilityAlertResponseCategoryIdMax = 60;
+
+export const previewAvailabilityAlertResponseObjectPathMax = 500;
+
+
+
+export const PreviewAvailabilityAlertResponse = zod.object({
+  "requestText": zod.string().max(previewAvailabilityAlertResponseRequestTextMax).optional(),
+  "keywords": zod.string().max(previewAvailabilityAlertResponseKeywordsMax).optional(),
+  "material": zod.string().max(previewAvailabilityAlertResponseMaterialMax).optional(),
+  "color": zod.string().max(previewAvailabilityAlertResponseColorMax).optional(),
+  "dimensions": zod.string().max(previewAvailabilityAlertResponseDimensionsMax).optional(),
+  "model": zod.string().max(previewAvailabilityAlertResponseModelMax).optional(),
+  "finish": zod.string().max(previewAvailabilityAlertResponseFinishMax).optional(),
+  "quantity": zod.number().gt(previewAvailabilityAlertResponseQuantityExclusiveMin).max(previewAvailabilityAlertResponseQuantityMax).optional(),
+  "unit": zod.string().max(previewAvailabilityAlertResponseUnitMax).optional(),
+  "budget": zod.number().min(previewAvailabilityAlertResponseBudgetMin).max(previewAvailabilityAlertResponseBudgetMax).optional(),
+  "maxUnitPrice": zod.number().min(previewAvailabilityAlertResponseMaxUnitPriceMin).max(previewAvailabilityAlertResponseMaxUnitPriceMax).optional(),
+  "neighborhood": zod.string().max(previewAvailabilityAlertResponseNeighborhoodMax).optional(),
+  "categoryId": zod.string().max(previewAvailabilityAlertResponseCategoryIdMax).optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "objectPath": zod.string().max(previewAvailabilityAlertResponseObjectPathMax).optional()
+})
+
+
+export const GetAlertEmailStatusResponse = zod.object({
+  "maskedEmail": zod.string(),
+  "verified": zod.boolean(),
+  "deliveryMode": zod.enum(['local', 'resend', 'unavailable'])
+})
+
+
+export const listAvailabilityAlertsResponseCriteriaRequestTextMax = 300;
+
+export const listAvailabilityAlertsResponseCriteriaKeywordsMax = 300;
+
+export const listAvailabilityAlertsResponseCriteriaMaterialMax = 100;
+
+export const listAvailabilityAlertsResponseCriteriaColorMax = 80;
+
+export const listAvailabilityAlertsResponseCriteriaDimensionsMax = 80;
+
+export const listAvailabilityAlertsResponseCriteriaModelMax = 100;
+
+export const listAvailabilityAlertsResponseCriteriaFinishMax = 100;
+
+export const listAvailabilityAlertsResponseCriteriaQuantityExclusiveMin = 0;
+export const listAvailabilityAlertsResponseCriteriaQuantityMax = 100000000;
+
+export const listAvailabilityAlertsResponseCriteriaUnitMax = 40;
+
+export const listAvailabilityAlertsResponseCriteriaBudgetMin = 0;
+export const listAvailabilityAlertsResponseCriteriaBudgetMax = 100000000;
+
+export const listAvailabilityAlertsResponseCriteriaMaxUnitPriceMin = 0;
+export const listAvailabilityAlertsResponseCriteriaMaxUnitPriceMax = 100000000;
+
+export const listAvailabilityAlertsResponseCriteriaNeighborhoodMax = 100;
+
+export const listAvailabilityAlertsResponseCriteriaCategoryIdMax = 60;
+
+export const listAvailabilityAlertsResponseCriteriaObjectPathMax = 500;
+
+
+
+export const ListAvailabilityAlertsResponseItem = zod.object({
+  "id": zod.string(),
+  "criteria": zod.object({
+  "requestText": zod.string().max(listAvailabilityAlertsResponseCriteriaRequestTextMax).optional(),
+  "keywords": zod.string().max(listAvailabilityAlertsResponseCriteriaKeywordsMax).optional(),
+  "material": zod.string().max(listAvailabilityAlertsResponseCriteriaMaterialMax).optional(),
+  "color": zod.string().max(listAvailabilityAlertsResponseCriteriaColorMax).optional(),
+  "dimensions": zod.string().max(listAvailabilityAlertsResponseCriteriaDimensionsMax).optional(),
+  "model": zod.string().max(listAvailabilityAlertsResponseCriteriaModelMax).optional(),
+  "finish": zod.string().max(listAvailabilityAlertsResponseCriteriaFinishMax).optional(),
+  "quantity": zod.number().gt(listAvailabilityAlertsResponseCriteriaQuantityExclusiveMin).max(listAvailabilityAlertsResponseCriteriaQuantityMax).optional(),
+  "unit": zod.string().max(listAvailabilityAlertsResponseCriteriaUnitMax).optional(),
+  "budget": zod.number().min(listAvailabilityAlertsResponseCriteriaBudgetMin).max(listAvailabilityAlertsResponseCriteriaBudgetMax).optional(),
+  "maxUnitPrice": zod.number().min(listAvailabilityAlertsResponseCriteriaMaxUnitPriceMin).max(listAvailabilityAlertsResponseCriteriaMaxUnitPriceMax).optional(),
+  "neighborhood": zod.string().max(listAvailabilityAlertsResponseCriteriaNeighborhoodMax).optional(),
+  "categoryId": zod.string().max(listAvailabilityAlertsResponseCriteriaCategoryIdMax).optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "objectPath": zod.string().max(listAvailabilityAlertsResponseCriteriaObjectPathMax).optional()
+}),
+  "status": zod.enum(['active', 'paused']),
+  "emailEnabled": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "matchCount": zod.number().int(),
+  "existing": zod.boolean().optional()
+})
+export const ListAvailabilityAlertsResponse = zod.array(ListAvailabilityAlertsResponseItem)
+
+
+export const saveAvailabilityAlertBodyCriteriaRequestTextMax = 300;
+
+export const saveAvailabilityAlertBodyCriteriaKeywordsMax = 300;
+
+export const saveAvailabilityAlertBodyCriteriaMaterialMax = 100;
+
+export const saveAvailabilityAlertBodyCriteriaColorMax = 80;
+
+export const saveAvailabilityAlertBodyCriteriaDimensionsMax = 80;
+
+export const saveAvailabilityAlertBodyCriteriaModelMax = 100;
+
+export const saveAvailabilityAlertBodyCriteriaFinishMax = 100;
+
+export const saveAvailabilityAlertBodyCriteriaQuantityExclusiveMin = 0;
+export const saveAvailabilityAlertBodyCriteriaQuantityMax = 100000000;
+
+export const saveAvailabilityAlertBodyCriteriaUnitMax = 40;
+
+export const saveAvailabilityAlertBodyCriteriaBudgetMin = 0;
+export const saveAvailabilityAlertBodyCriteriaBudgetMax = 100000000;
+
+export const saveAvailabilityAlertBodyCriteriaMaxUnitPriceMin = 0;
+export const saveAvailabilityAlertBodyCriteriaMaxUnitPriceMax = 100000000;
+
+export const saveAvailabilityAlertBodyCriteriaNeighborhoodMax = 100;
+
+export const saveAvailabilityAlertBodyCriteriaCategoryIdMax = 60;
+
+export const saveAvailabilityAlertBodyCriteriaObjectPathMax = 500;
+
+
+
+export const SaveAvailabilityAlertBody = zod.object({
+  "criteria": zod.object({
+  "requestText": zod.string().max(saveAvailabilityAlertBodyCriteriaRequestTextMax).optional(),
+  "keywords": zod.string().max(saveAvailabilityAlertBodyCriteriaKeywordsMax).optional(),
+  "material": zod.string().max(saveAvailabilityAlertBodyCriteriaMaterialMax).optional(),
+  "color": zod.string().max(saveAvailabilityAlertBodyCriteriaColorMax).optional(),
+  "dimensions": zod.string().max(saveAvailabilityAlertBodyCriteriaDimensionsMax).optional(),
+  "model": zod.string().max(saveAvailabilityAlertBodyCriteriaModelMax).optional(),
+  "finish": zod.string().max(saveAvailabilityAlertBodyCriteriaFinishMax).optional(),
+  "quantity": zod.number().gt(saveAvailabilityAlertBodyCriteriaQuantityExclusiveMin).max(saveAvailabilityAlertBodyCriteriaQuantityMax).optional(),
+  "unit": zod.string().max(saveAvailabilityAlertBodyCriteriaUnitMax).optional(),
+  "budget": zod.number().min(saveAvailabilityAlertBodyCriteriaBudgetMin).max(saveAvailabilityAlertBodyCriteriaBudgetMax).optional(),
+  "maxUnitPrice": zod.number().min(saveAvailabilityAlertBodyCriteriaMaxUnitPriceMin).max(saveAvailabilityAlertBodyCriteriaMaxUnitPriceMax).optional(),
+  "neighborhood": zod.string().max(saveAvailabilityAlertBodyCriteriaNeighborhoodMax).optional(),
+  "categoryId": zod.string().max(saveAvailabilityAlertBodyCriteriaCategoryIdMax).optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "objectPath": zod.string().max(saveAvailabilityAlertBodyCriteriaObjectPathMax).optional()
+}),
+  "emailEnabled": zod.boolean()
+})
+
+export const saveAvailabilityAlertResponseCriteriaRequestTextMax = 300;
+
+export const saveAvailabilityAlertResponseCriteriaKeywordsMax = 300;
+
+export const saveAvailabilityAlertResponseCriteriaMaterialMax = 100;
+
+export const saveAvailabilityAlertResponseCriteriaColorMax = 80;
+
+export const saveAvailabilityAlertResponseCriteriaDimensionsMax = 80;
+
+export const saveAvailabilityAlertResponseCriteriaModelMax = 100;
+
+export const saveAvailabilityAlertResponseCriteriaFinishMax = 100;
+
+export const saveAvailabilityAlertResponseCriteriaQuantityExclusiveMin = 0;
+export const saveAvailabilityAlertResponseCriteriaQuantityMax = 100000000;
+
+export const saveAvailabilityAlertResponseCriteriaUnitMax = 40;
+
+export const saveAvailabilityAlertResponseCriteriaBudgetMin = 0;
+export const saveAvailabilityAlertResponseCriteriaBudgetMax = 100000000;
+
+export const saveAvailabilityAlertResponseCriteriaMaxUnitPriceMin = 0;
+export const saveAvailabilityAlertResponseCriteriaMaxUnitPriceMax = 100000000;
+
+export const saveAvailabilityAlertResponseCriteriaNeighborhoodMax = 100;
+
+export const saveAvailabilityAlertResponseCriteriaCategoryIdMax = 60;
+
+export const saveAvailabilityAlertResponseCriteriaObjectPathMax = 500;
+
+
+
+export const SaveAvailabilityAlertResponse = zod.object({
+  "id": zod.string(),
+  "criteria": zod.object({
+  "requestText": zod.string().max(saveAvailabilityAlertResponseCriteriaRequestTextMax).optional(),
+  "keywords": zod.string().max(saveAvailabilityAlertResponseCriteriaKeywordsMax).optional(),
+  "material": zod.string().max(saveAvailabilityAlertResponseCriteriaMaterialMax).optional(),
+  "color": zod.string().max(saveAvailabilityAlertResponseCriteriaColorMax).optional(),
+  "dimensions": zod.string().max(saveAvailabilityAlertResponseCriteriaDimensionsMax).optional(),
+  "model": zod.string().max(saveAvailabilityAlertResponseCriteriaModelMax).optional(),
+  "finish": zod.string().max(saveAvailabilityAlertResponseCriteriaFinishMax).optional(),
+  "quantity": zod.number().gt(saveAvailabilityAlertResponseCriteriaQuantityExclusiveMin).max(saveAvailabilityAlertResponseCriteriaQuantityMax).optional(),
+  "unit": zod.string().max(saveAvailabilityAlertResponseCriteriaUnitMax).optional(),
+  "budget": zod.number().min(saveAvailabilityAlertResponseCriteriaBudgetMin).max(saveAvailabilityAlertResponseCriteriaBudgetMax).optional(),
+  "maxUnitPrice": zod.number().min(saveAvailabilityAlertResponseCriteriaMaxUnitPriceMin).max(saveAvailabilityAlertResponseCriteriaMaxUnitPriceMax).optional(),
+  "neighborhood": zod.string().max(saveAvailabilityAlertResponseCriteriaNeighborhoodMax).optional(),
+  "categoryId": zod.string().max(saveAvailabilityAlertResponseCriteriaCategoryIdMax).optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "objectPath": zod.string().max(saveAvailabilityAlertResponseCriteriaObjectPathMax).optional()
+}),
+  "status": zod.enum(['active', 'paused']),
+  "emailEnabled": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "matchCount": zod.number().int(),
+  "existing": zod.boolean().optional()
+})
+
+
+
+
+
+export const UpdateAvailabilityAlertParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const UpdateAvailabilityAlertBody = zod.object({
+  "status": zod.enum(['active', 'paused']).optional(),
+  "emailEnabled": zod.boolean().optional()
+})
+
+export const updateAvailabilityAlertResponseCriteriaRequestTextMax = 300;
+
+export const updateAvailabilityAlertResponseCriteriaKeywordsMax = 300;
+
+export const updateAvailabilityAlertResponseCriteriaMaterialMax = 100;
+
+export const updateAvailabilityAlertResponseCriteriaColorMax = 80;
+
+export const updateAvailabilityAlertResponseCriteriaDimensionsMax = 80;
+
+export const updateAvailabilityAlertResponseCriteriaModelMax = 100;
+
+export const updateAvailabilityAlertResponseCriteriaFinishMax = 100;
+
+export const updateAvailabilityAlertResponseCriteriaQuantityExclusiveMin = 0;
+export const updateAvailabilityAlertResponseCriteriaQuantityMax = 100000000;
+
+export const updateAvailabilityAlertResponseCriteriaUnitMax = 40;
+
+export const updateAvailabilityAlertResponseCriteriaBudgetMin = 0;
+export const updateAvailabilityAlertResponseCriteriaBudgetMax = 100000000;
+
+export const updateAvailabilityAlertResponseCriteriaMaxUnitPriceMin = 0;
+export const updateAvailabilityAlertResponseCriteriaMaxUnitPriceMax = 100000000;
+
+export const updateAvailabilityAlertResponseCriteriaNeighborhoodMax = 100;
+
+export const updateAvailabilityAlertResponseCriteriaCategoryIdMax = 60;
+
+export const updateAvailabilityAlertResponseCriteriaObjectPathMax = 500;
+
+
+
+export const UpdateAvailabilityAlertResponse = zod.object({
+  "id": zod.string(),
+  "criteria": zod.object({
+  "requestText": zod.string().max(updateAvailabilityAlertResponseCriteriaRequestTextMax).optional(),
+  "keywords": zod.string().max(updateAvailabilityAlertResponseCriteriaKeywordsMax).optional(),
+  "material": zod.string().max(updateAvailabilityAlertResponseCriteriaMaterialMax).optional(),
+  "color": zod.string().max(updateAvailabilityAlertResponseCriteriaColorMax).optional(),
+  "dimensions": zod.string().max(updateAvailabilityAlertResponseCriteriaDimensionsMax).optional(),
+  "model": zod.string().max(updateAvailabilityAlertResponseCriteriaModelMax).optional(),
+  "finish": zod.string().max(updateAvailabilityAlertResponseCriteriaFinishMax).optional(),
+  "quantity": zod.number().gt(updateAvailabilityAlertResponseCriteriaQuantityExclusiveMin).max(updateAvailabilityAlertResponseCriteriaQuantityMax).optional(),
+  "unit": zod.string().max(updateAvailabilityAlertResponseCriteriaUnitMax).optional(),
+  "budget": zod.number().min(updateAvailabilityAlertResponseCriteriaBudgetMin).max(updateAvailabilityAlertResponseCriteriaBudgetMax).optional(),
+  "maxUnitPrice": zod.number().min(updateAvailabilityAlertResponseCriteriaMaxUnitPriceMin).max(updateAvailabilityAlertResponseCriteriaMaxUnitPriceMax).optional(),
+  "neighborhood": zod.string().max(updateAvailabilityAlertResponseCriteriaNeighborhoodMax).optional(),
+  "categoryId": zod.string().max(updateAvailabilityAlertResponseCriteriaCategoryIdMax).optional(),
+  "condition": zod.enum(['new', 'like_new', 'used']).optional(),
+  "freeOnly": zod.boolean().optional(),
+  "objectPath": zod.string().max(updateAvailabilityAlertResponseCriteriaObjectPathMax).optional()
+}),
+  "status": zod.enum(['active', 'paused']),
+  "emailEnabled": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "matchCount": zod.number().int(),
+  "existing": zod.boolean().optional()
+})
+
+
+
+
+
+export const DeleteAvailabilityAlertParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DeleteAvailabilityAlertResponse = zod.void()
+
+
+export const getAvailabilityUnsubscribeQueryTokenMin = 32;
+export const getAvailabilityUnsubscribeQueryTokenMax = 128;
+
+
+
+export const GetAvailabilityUnsubscribeQueryParams = zod.object({
+  "token": zod.coerce.string().min(getAvailabilityUnsubscribeQueryTokenMin).max(getAvailabilityUnsubscribeQueryTokenMax)
+})
+
+export const GetAvailabilityUnsubscribeResponse = zod.object({
+  "emailEnabled": zod.boolean()
+})
+
+
+export const unsubscribeAvailabilityEmailBodyTokenMin = 32;
+export const unsubscribeAvailabilityEmailBodyTokenMax = 128;
+
+
+
+export const UnsubscribeAvailabilityEmailBody = zod.object({
+  "token": zod.string().min(unsubscribeAvailabilityEmailBodyTokenMin).max(unsubscribeAvailabilityEmailBodyTokenMax)
+})
+
+export const UnsubscribeAvailabilityEmailResponse = zod.object({
+  "emailEnabled": zod.boolean()
+})
+
+
+
+
+
+export const MarkConversationReadParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const MarkConversationReadResponse = zod.void()
 
 

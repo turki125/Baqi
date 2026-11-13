@@ -7,6 +7,7 @@ import SellPage from './baqi/pages/sell';
 import AuthPage from './baqi/pages/auth';
 import { ChatPage, MessagesPage } from './baqi/pages/messages';
 import { OrderDetailPage, OrdersPage } from './baqi/pages/orders';
+import { AlertsPage, EmailUnsubscribePage } from './baqi/pages/alerts';
 import { AccountPage, HelpPage, NotFoundPage, WalletPage } from './baqi/pages/account';
 
 export default function BaqiApp() {
@@ -22,6 +23,8 @@ export default function BaqiApp() {
       <Route path="/orders"><Shell><OrdersPage /></Shell></Route>
       <Route path="/orders/:id"><Shell><OrderDetailPage /></Shell></Route>
       <Route path="/wallet"><Shell><WalletPage /></Shell></Route>
+      <Route path="/account/alerts"><Shell><AlertsPage /></Shell></Route>
+      <Route path="/email-unsubscribe"><Shell><EmailUnsubscribePage /></Shell></Route>
       <Route path="/account"><Shell><AccountPage /></Shell></Route>
       <Route path="/help"><Shell><HelpPage /></Shell></Route>
       <Route><Shell><NotFoundPage /></Shell></Route>

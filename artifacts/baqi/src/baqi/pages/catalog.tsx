@@ -7,14 +7,18 @@ import { Button, EmptyState, ErrorState, ListingCard, Modal, SkeletonGrid, btn, 
 import { REQ } from '@/lib/baqi';
 import { PhotoSearchDialog, useImageSearch, type PhotoSearch } from '../image-search';
 import { photoErrorMessage } from '../photo-errors';
+import { AlertEditor, AlertPrompt, hasSearchCriteria, useRestoreAlertIntent, type AlertDraft } from '../alerts';
+import type { AlertSearchInput } from '@workspace/api-client-react';
 
 type Condition = '' | 'new' | 'like_new' | 'used';
 type Sort = 'newest' | 'price_low' | 'price_high';
 
 export default function CatalogPage() {
   const { tr, isAr, num } = useLang();
-  const [input, setInput] = useState('');
-  const [query, setQuery] = useState('');
+  const [input, setInput] = useState(() => new URLSearchParams(window.location.search).get('q')?.slice(0, 300) ?? '');
+  const [query, setQuery] = useState(() => (new URLSearchParams(window.location.search).get('q') ?? '').trim().slice(0, 300));
+  const [alertDraft, setAlertDraft] = useState<AlertDraft | null>(null);
+  useRestoreAlertIntent('availability-alert', 'restore', setAlertDraft);
   const [category, setCategory] = useState('');
   const [condition, setCondition] = useState<Condition>('');
   const [freeOnly, setFreeOnly] = useState(false);
@@ -44,6 +48,8 @@ export default function CatalogPage() {
   const imgKey = photo ? img.keyOf(photo, baseFilters) : '';
   const imgStale = !!photo && !!img.state && img.state.key !== imgKey;
   const imgActive = !!photo;
+  const textAlertSearch: AlertSearchInput = { q: query || undefined, categoryId: category || undefined, condition: condition || undefined, freeOnly: freeOnly || undefined };
+  const photoAlertSearch: AlertSearchInput | null = photo ? { ...textAlertSearch, objectPath: photo.objectPath, minQuantity: photo.minQuantity, unit: photo.minQuantity ? photo.unit : undefined } : null;
   const runPhoto = (p: PhotoSearch) => { setPhoto(p); setPhotoOpen(false); img.run(p, baseFilters); listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
   const clearPhoto = () => { img.reset(); setPhoto(null); };
   const catName = (id: string) => { const c = categories.data?.find((x) => x.id === id); return c ? (isAr ? c.nameAr : c.nameEn) : id; };
@@ -128,6 +134,7 @@ export default function CatalogPage() {
         <EmptyState title={chips.length ? tr('No materials match these filters', 'لا توجد مواد تطابق هذه الخيارات') : tr('No materials listed yet', 'لا توجد مواد معروضة بعد')}
           body={chips.length ? tr('Try a broader search or remove a filter.', 'جرّب بحثاً أوسع أو أزل أحد الخيارات.') : tr('Be the first to list surplus materials in Riyadh.', 'كن أول من يعرض فائض مواد في الرياض.')}
           action={chips.length ? <Button variant="outline" onClick={clearAll} testId="button-empty-clear">{tr('Clear filters', 'مسح التصفية')}</Button> : <Link href="/sell" className={btn('primary')}>{tr('Sell materials', 'بِع موادك')}</Link>} />}
+      {!imgActive && listings.isSuccess && listings.data.length === 0 && hasSearchCriteria(textAlertSearch) && <AlertPrompt key={JSON.stringify(textAlertSearch)} search={textAlertSearch} onPreview={setAlertDraft} />}
     </section>
 
     <section className="border-y border-border bg-card" aria-labelledby="how-heading">
@@ -165,6 +172,7 @@ export default function CatalogPage() {
         <Button onClick={() => setDrawer(false)} testId="button-drawer-apply">{tr('Show results', 'عرض النتائج')} {!imgActive && listings.data ? `(${num(listings.data.length)})` : ''}</Button>
       </div>
     </Modal>
+    <AlertEditor draft={alertDraft} onClose={() => setAlertDraft(null)} returnTo="/?availability-alert=restore" />
     <PhotoSearchDialog key={user?.id ?? 'guest'} open={photoOpen} onOpenChange={setPhotoOpen} initial={photo} onSearch={runPhoto} />
   </main>;
 
@@ -178,7 +186,8 @@ export default function CatalogPage() {
     if (img.state.error) return <>{note}<ErrorState message={photoErrorMessage(img.state.error, tr)} retry={() => photo && img.run(photo, baseFilters)} />
       <div className="flex justify-center"><Button variant="outline" onClick={clearPhoto} testId="button-photo-error-clear">{tr('Back to regular results', 'العودة للنتائج العادية')}</Button></div></>;
     const data = img.state.data ?? [];
-    if (!data.length) return <>{note}<EmptyState title={tr('No similar materials found', 'لم نجد مواد مشابهة')} body={tr('Try a clearer photo, a smaller quantity, or fewer filters.', 'جرّب صورة أوضح أو كمية أقل أو خيارات أقل.')} action={<div className="flex gap-2"><Button variant="outline" onClick={() => setPhotoOpen(true)} testId="button-photo-empty-edit">{tr('Change photo', 'تغيير الصورة')}</Button><Button onClick={clearPhoto} testId="button-photo-empty-clear">{tr('Clear photo', 'إزالة الصورة')}</Button></div>} /></>;
+    if (!data.length) return <>{note}<EmptyState title={tr('No similar materials found', 'لم نجد مواد مشابهة')} body={tr('Try a clearer photo, a smaller quantity, or fewer filters.', 'جرّب صورة أوضح أو كمية أقل أو خيارات أقل.')} action={<div className="flex gap-2"><Button variant="outline" onClick={() => setPhotoOpen(true)} testId="button-photo-empty-edit">{tr('Change photo', 'تغيير الصورة')}</Button><Button onClick={clearPhoto} testId="button-photo-empty-clear">{tr('Clear photo', 'إزالة الصورة')}</Button></div>} />
+      {photoAlertSearch && <AlertPrompt key={imgKey} search={photoAlertSearch} onPreview={setAlertDraft} />}</>;
     return <>{note}<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="grid-photo-results">{data.map((l, i) => <div key={l.id} className="rise" style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}><ListingCard listing={l} /></div>)}</div></>;
   }
 }

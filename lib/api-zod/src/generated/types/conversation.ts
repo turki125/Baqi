@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ConversationKind } from './conversationKind';
 
 export interface Conversation {
   id: string;
@@ -13,4 +14,7 @@ export interface Conversation {
   participantName: string;
   lastMessage: string;
   updatedAt: Date;
+  kind?: ConversationKind;
+  /** @minimum 0 */
+  unreadCount?: number;
 }

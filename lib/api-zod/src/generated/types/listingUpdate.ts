@@ -7,6 +7,11 @@
  */
 
 export interface ListingUpdate {
+  /**
+     * @exclusiveMinimum 0
+     * @nullable
+     */
+  unitPrice?: number | null;
   /** @minimum 0 */
   quantity?: number;
   isAvailable?: boolean;

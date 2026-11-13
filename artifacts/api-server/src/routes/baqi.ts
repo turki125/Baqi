@@ -5,7 +5,6 @@ import {
   desc,
   eq,
   gte,
-  ilike,
   or,
   sql,
 } from "drizzle-orm";
@@ -31,6 +30,7 @@ import {
   ListMessagesParams,
   ListMessagesResponse,
   ListOrdersResponse,
+  MarkConversationReadParams,
   PayOrderBalanceBody,
   PayOrderBalanceParams,
   PayOrderBalanceResponse,
@@ -46,12 +46,14 @@ import {
   UpdateListingParams,
   UpdateListingResponse,
 } from "@workspace/api-zod";
-import { db, conversationsTable, listingsTable, messagesTable, ordersTable, walletTransactionsTable } from "@workspace/db";
+import { db, conversationsTable, listingsTable, messagesTable, ordersTable, walletTransactionsTable, availabilityMatchesTable } from "@workspace/db";
 import { requireUser, userIdFromRequest } from "../lib/auth";
 import { memberDisplayName } from "../lib/member-display-name";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { ownsUpload } from "../lib/upload-ownership";
 import { createPhotoAssistantRouter } from "./photo-assistant";
+import { criteriaFromSearch, eligiblePurchase } from "../lib/search-criteria";
+import { availabilityCard, wakeAvailabilityWorker } from "../lib/availability-engine";
 
 const router: IRouter = Router();
 const objectStorage = new ObjectStorageService();
@@ -225,17 +227,9 @@ router.get("/listings", async (req, res): Promise<void> => {
   const params = parsed.data;
   const filters = [
     eq(listingsTable.isAvailable, true),
-    gte(listingsTable.quantity, 0.001),
+    sql`${listingsTable.quantity} > 0`,
   ];
-  if (params.category) filters.push(eq(listingsTable.categoryId, params.category));
-  if (params.condition) filters.push(eq(listingsTable.condition, params.condition));
-  if (params.freeOnly) filters.push(eq(listingsTable.isFree, true));
-  if (params.minQuantity !== undefined) filters.push(gte(listingsTable.quantity, params.minQuantity));
-  if (params.unit) filters.push(eq(listingsTable.unit, params.unit));
-  if (params.q?.trim()) {
-    const term = `%${params.q.trim()}%`;
-    filters.push(or(ilike(listingsTable.title, term), ilike(listingsTable.description, term))!);
-  }
+  const criteria = criteriaFromSearch({ ...params, categoryId: params.category });
 
   const orderBy =
     params.sort === "price_low"
@@ -244,7 +238,7 @@ router.get("/listings", async (req, res): Promise<void> => {
         ? desc(listingsTable.unitPrice)
         : desc(listingsTable.createdAt);
   const rows = await db.select().from(listingsTable).where(and(...filters)).orderBy(orderBy);
-  res.json(ListListingsResponse.parse(rows.map(toListing)));
+  res.json(ListListingsResponse.parse(rows.filter((row) => eligiblePurchase(row, criteria)).map(toListing)));
 });
 
 router.get("/listings/:id", async (req, res): Promise<void> => {
@@ -336,6 +330,7 @@ router.post("/listings", requireUser, async (req, res): Promise<void> => {
       req.log.warn({ err: error, listingId: id }, "Could not make listing photo public");
     }
   }
+  wakeAvailabilityWorker();
   res.status(201).json(CreateListingResponse.parse(toListing(listing)));
 });
 
@@ -353,6 +348,10 @@ router.patch("/listings/:id", requireUser, async (req, res): Promise<void> => {
   )).limit(1);
   if (!currentListing) {
     res.status(404).json({ error: "Listing not found" });
+    return;
+  }
+  if (!currentListing.isFree && parsed.data.unitPrice === null) {
+    res.status(400).json({ error: "Paid listings require a price per unit" });
     return;
   }
   if (
@@ -382,6 +381,7 @@ router.patch("/listings/:id", requireUser, async (req, res): Promise<void> => {
     res.status(404).json({ error: "Listing not found" });
     return;
   }
+  wakeAvailabilityWorker();
   res.json(UpdateListingResponse.parse(toListing(listing)));
 });
 
@@ -394,13 +394,21 @@ router.get("/conversations", requireUser, async (req, res): Promise<void> => {
     .orderBy(desc(conversationsTable.updatedAt));
 
   const result = await Promise.all(rows.map(async (conversation) => {
+    const official = conversation.kind === "availability";
     const [listing] = await db.select().from(listingsTable).where(eq(listingsTable.id, conversation.listingId)).limit(1);
     const [message] = await db.select().from(messagesTable).where(eq(messagesTable.conversationId, conversation.id)).orderBy(desc(messagesTable.createdAt)).limit(1);
+    const readAt = conversation.buyerId === userId ? conversation.buyerReadAt : conversation.sellerReadAt;
+    const [unread] = await db.select({ count: sql<number>`count(*)::int` }).from(messagesTable).where(and(
+      eq(messagesTable.conversationId, conversation.id), sql`${messagesTable.senderId} <> ${userId}`,
+      ...(readAt ? [sql`${messagesTable.createdAt} > ${readAt}`] : []),
+    ));
     return {
       id: conversation.id,
       listingId: conversation.listingId,
-      listingTitle: listing?.title ?? "Listing",
-      participantName: await memberDisplayName(
+      kind: official ? "availability" : "listing",
+      unreadCount: unread.count,
+      listingTitle: official ? "إشعارات تلقائية من باقي" : listing?.title ?? "Listing",
+      participantName: official ? "تنبيهات باقي" : await memberDisplayName(
         conversation.buyerId === userId ? conversation.sellerId : conversation.buyerId,
         conversation.buyerId === userId ? (listing?.sellerName ?? "Baqi member") : "Baqi buyer",
       ),
@@ -481,7 +489,22 @@ router.get("/conversations/:id/messages", requireUser, async (req, res): Promise
     return;
   }
   const rows = await db.select().from(messagesTable).where(eq(messagesTable.conversationId, conversation.id)).orderBy(asc(messagesTable.createdAt));
-  res.json(ListMessagesResponse.parse(rows));
+  res.json(ListMessagesResponse.parse(await Promise.all(rows.map(async (row) => {
+    if (!row.availabilityMatchId || conversation.kind !== "availability") return row;
+    const [match] = await db.select().from(availabilityMatchesTable).where(eq(availabilityMatchesTable.id, row.availabilityMatchId));
+    return match ? { ...row, availability: await availabilityCard(match) } : row;
+  }))));
+});
+
+router.post("/conversations/:id/read", requireUser, async (req, res): Promise<void> => {
+  const params = MarkConversationReadParams.safeParse(req.params);
+  if (!params.success) { res.status(400).json({ error: "Invalid conversation" }); return; }
+  const userId = userIdFromRequest(req)!;
+  const conversation = await conversationForMember(params.data.id, userId);
+  if (!conversation) { res.status(404).json({ error: "Conversation not found" }); return; }
+  await db.update(conversationsTable).set(conversation.buyerId === userId
+    ? { buyerReadAt: new Date() } : { sellerReadAt: new Date() }).where(eq(conversationsTable.id, conversation.id));
+  res.sendStatus(204);
 });
 
 router.post("/conversations/:id/messages", requireUser, async (req, res): Promise<void> => {
@@ -495,6 +518,10 @@ router.post("/conversations/:id/messages", requireUser, async (req, res): Promis
   const conversation = await conversationForMember(params.data.id, userId);
   if (!conversation) {
     res.status(404).json({ error: "Conversation not found" });
+    return;
+  }
+  if (conversation.kind === "availability") {
+    res.status(403).json({ error: "Only Baqi can send messages in this official conversation" });
     return;
   }
   const [message] = await db.insert(messagesTable).values({
