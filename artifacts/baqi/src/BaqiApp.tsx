@@ -1,7 +1,9 @@
-import { Route, Switch } from 'wouter';
+import { useState } from 'react';
+import { Route, Switch, useLocation } from 'wouter';
 import { LanguageProvider } from './baqi/lang';
 import { Shell } from './baqi/ui';
 import CatalogPage from './baqi/pages/catalog';
+import WelcomeScreen from './baqi/pages/welcome';
 import ListingPage from './baqi/pages/listing';
 import SellPage from './baqi/pages/sell';
 import AuthPage from './baqi/pages/auth';
@@ -10,12 +12,39 @@ import { OrderDetailPage, OrdersPage } from './baqi/pages/orders';
 import { AlertsPage, EmailUnsubscribePage } from './baqi/pages/alerts';
 import { AccountPage, HelpPage, NotFoundPage, WalletPage } from './baqi/pages/account';
 
+const WELCOME_COMPLETED_KEY = 'baqi-welcome-completed';
+
 export default function BaqiApp() {
+  const [welcomeCompleted, setWelcomeCompleted] = useState(() => {
+    try {
+      return window.localStorage.getItem(WELCOME_COMPLETED_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [, setLocation] = useLocation();
+  const completeWelcome = () => {
+    try {
+      window.localStorage.setItem(WELCOME_COMPLETED_KEY, 'true');
+    } catch {
+      // Continue into the marketplace for this session if storage is unavailable.
+    }
+    setWelcomeCompleted(true);
+  };
+  const sellFromWelcome = () => {
+    completeWelcome();
+    setLocation('/sell');
+  };
+
   return <LanguageProvider>
     <Switch>
       <Route path="/sign-in/*?"><AuthPage mode="sign-in" /></Route>
       <Route path="/sign-up/*?"><AuthPage mode="sign-up" /></Route>
-      <Route path="/"><Shell><CatalogPage /></Shell></Route>
+      <Route path="/">
+        {welcomeCompleted
+          ? <Shell><CatalogPage /></Shell>
+          : <WelcomeScreen onBrowse={completeWelcome} onSell={sellFromWelcome} onSkip={completeWelcome} />}
+      </Route>
       <Route path="/listing/:id"><Shell><ListingPage /></Shell></Route>
       <Route path="/sell"><Shell><SellPage /></Shell></Route>
       <Route path="/messages"><Shell><MessagesPage /></Shell></Route>

@@ -120,11 +120,8 @@ export function EmptyState({ title, body, action, icon }: { title: string; body?
 }
 
 export function Logo({ compact }: { compact?: boolean }) {
-  const { tr } = useLang();
-  return <span className="flex items-center gap-2.5">
-    <img src={`${basePath}/logo.svg`} alt="" className="size-9 rounded-[10px]" />
-    {!compact && <span className="leading-none"><span className="block text-[19px] font-bold tracking-tight">{tr('Baqi', 'باقي')}</span>
-      <span className="mt-0.5 block text-[11px] font-medium text-muted-foreground">{tr('Riyadh materials', 'مواد الرياض')}</span></span>}
+  return <span className={cx('baqi-wordmark', compact && 'baqi-wordmark-compact')} dir="ltr" lang="en" role="img" aria-label="Baqi">
+    <span>baqi</span><span className="baqi-wordmark-dot" aria-hidden="true">.</span>
   </span>;
 }
 

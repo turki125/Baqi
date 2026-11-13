@@ -1,6 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#191B18"/>
-  <rect x="14" y="38" width="36" height="9" rx="2.5" fill="#FFFFFF"/>
-  <rect x="18" y="26" width="28" height="9" rx="2.5" fill="#FFFFFF" opacity=".82"/>
-  <rect x="23" y="14" width="18" height="9" rx="2.5" fill="#F45A24"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="42" viewBox="0 0 120 42" role="img" aria-label="baqi">
+  <text x="1" y="32" fill="#191B18" font-family="Syne, Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="-1.6">baqi<tspan fill="#F45A24">.</tspan></text>
 </svg>

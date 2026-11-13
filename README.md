@@ -24,7 +24,7 @@ Baqi connects people who have leftover building materials with people who can us
 
 | Area | What you can do |
 | --- | --- |
-| Bilingual experience | Switch between English and Arabic, with right-to-left layout support. |
+| Bilingual experience | First-visit welcome with animated materials artwork, English/Arabic switching, right-to-left layout, and reduced-motion support. |
 | Material discovery | Search listings, filter by category and condition, browse free materials, and sort by price. |
 | Selling | Upload photos, choose partial or full-lot sales, and control whether your phone number is visible. |
 | Conversations | Message sellers to ask questions and arrange collection. |
