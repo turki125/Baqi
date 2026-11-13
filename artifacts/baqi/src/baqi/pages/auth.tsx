@@ -25,7 +25,7 @@ export default function AuthPage({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       </div>
       <p className="text-xs text-white/70">{tr('Payments in this version are simulations.', 'المدفوعات في هذه النسخة محاكاة.')}</p>
     </aside>
-    <main className="flex min-h-[100dvh] flex-col px-4 py-5 sm:px-8">
+    <main className="flex min-h-[100dvh] min-w-0 flex-col px-4 py-5 sm:px-8">
       <div className="flex items-center justify-between gap-2">
         <Link href="/" className="inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-semibold text-muted-foreground no-underline hover:text-primary" data-testid="link-auth-back"><ArrowLeft size={16} className="rtl-flip" />{tr('Back to Baqi', 'العودة إلى باقي')}</Link>
         <button type="button" onClick={toggle} className={btn('ghost', 'sm')} data-testid="button-auth-language"><Languages size={16} /><span lang={isAr ? 'en' : 'ar'}>{isAr ? 'English' : 'العربية'}</span></button>

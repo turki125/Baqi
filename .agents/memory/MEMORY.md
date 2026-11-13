@@ -1,0 +1,1 @@
+- [Thmanyah publishing permission](thmanyah-publishing-permission.md) — confirm web-embedding rights before publishing; fingerprinted font URLs do not prevent extraction.

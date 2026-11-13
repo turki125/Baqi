@@ -46,7 +46,7 @@ const clerkAppearance = {
     colorInput: '#FFFFFF',
     colorInputForeground: '#182226',
     colorNeutral: '#182226',
-    fontFamily: "'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif",
+    fontFamily: 'var(--app-font-sans)',
     borderRadius: '0.75rem',
   },
   elements: {
