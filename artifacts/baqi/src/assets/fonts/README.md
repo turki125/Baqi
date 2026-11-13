@@ -16,15 +16,16 @@ embedded notices are unchanged; the included original license is `LICENSE.pdf`.
 `../../styles/fonts.css` contains the centralized `@font-face` declarations.
 `../../index.css` defines the application tokens and Tailwind families:
 
-- `--app-font-body` / `font-sans`: default Arabic and English UI text,
-  including forms, portals, notifications, and Clerk sign-in.
-- `--app-font-display` / `font-display`: opt-in Serif Display.
-- `--app-font-sans`: opt-in Thmanyah Sans for sans-serif content.
+- `--app-font-sans` / `font-sans`: navigation, links, buttons, inputs, labels,
+  other UI controls, numeric values, and Clerk sign-in.
+- `--app-font-body` / `font-serif`: longer descriptions and reading text.
+- `--app-font-display` / `font-display`: headings and titles.
 
-Headings (`h1`–`h6`) use Serif Display, with Serif Text for other content. This
-uses the distinctive Thmanyah serif styling shown in the supplied reference.
-The legacy `font-mono` UI utility uses the default serif text because no
-monospace font was supplied. Numeric alignment still uses `font-variant-numeric`.
+Headings (`h1`–`h6`) use Serif Display; long-form content uses Serif Text. The
+Sans family (which the official font page identifies as its digital family)
+keeps interface controls and compact UI readable and legible at small sizes.
+The `font-mono` utility uses Sans because no monospace family was supplied.
+Numeric alignment still uses `font-variant-numeric`.
 
 There is no supplied 600 face or italic style. Browser CSS weight matching uses
 the real Bold face for existing 600 requests; synthetic bold/italics are disabled.

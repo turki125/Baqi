@@ -28,7 +28,7 @@
   --color-amber-soft: hsl(var(--amber-soft));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
-  --font-sans: var(--app-font-body);
+  --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-body);
   --font-display: var(--app-font-display);
   --font-mono: var(--app-font-mono);
@@ -63,7 +63,6 @@
   --app-font-body: 'Thmanyah Serif Text', serif;
   --app-font-display: 'Thmanyah Serif Display', serif;
   --app-font-sans: 'Thmanyah Sans', system-ui, sans-serif;
-  /* No custom monospace face was supplied; UI numbers still use Thmanyah. */
   --app-font-mono: var(--app-font-sans);
   --radius: 0.75rem;
   --shadow-sm: 0 1px 2px rgba(24, 34, 38, .05), 0 1px 1px rgba(24, 34, 38, .03);
@@ -107,13 +106,17 @@
     font-feature-settings: 'tnum' 0;
   }
   h1, h2, h3, h4, h5, h6 { font-family: var(--app-font-display); }
-  button, input, select, textarea { font: inherit; }
+  button, input, select, textarea, label {
+    font: inherit;
+    font-family: var(--app-font-sans);
+  }
+  a.no-underline { font-family: var(--app-font-sans); }
   fieldset { min-inline-size: 0; }
   button, a { -webkit-tap-highlight-color: transparent; }
   :focus-visible { outline: 3px solid hsl(var(--primary) / .45); outline-offset: 2px; border-radius: 8px; }
 }
 
-.num { font-variant-numeric: tabular-nums; }
+.num { font-family: var(--app-font-sans); font-variant-numeric: tabular-nums; }
 .shadow-card { box-shadow: var(--shadow-sm); }
 .shadow-lift { box-shadow: var(--shadow-md); }
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

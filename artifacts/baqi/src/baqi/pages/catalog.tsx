@@ -84,7 +84,7 @@ export default function CatalogPage() {
     <section className="border-b border-border bg-card">
       <div className="mx-auto max-w-[1240px] px-4 pb-7 pt-8 sm:px-6 sm:pt-12">
         <p className="mb-3 inline-flex items-center gap-2 rounded-md bg-secondary px-2.5 py-1 text-xs font-semibold text-primary">{tr('Riyadh · local pickup', 'الرياض · استلام محلي')}</p>
-        <h1 className="max-w-3xl text-[30px] font-bold leading-[1.15] tracking-tight sm:text-[42px]">{tr('Build for less. Give surplus a second life.', 'ابنِ بتكلفة أقل. وامنح فائض المواد فرصة جديدة.')}</h1>
+        <h1 className="max-w-3xl text-[30px] font-bold leading-[1.15] tracking-tight sm:text-[36px]">{tr('Build for less. Give surplus a second life.', 'ابنِ بتكلفة أقل. وامنح فائض المواد فرصة جديدة.')}</h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-7 text-muted-foreground sm:text-base">{tr('Buy leftover building materials from sites and homes across Riyadh, sell what you no longer need, or give it away to someone who can use it. Pickup is arranged directly with the seller.', 'اشترِ فائض مواد البناء من المواقع والمنازل في الرياض، أو بِع ما لم تعد تحتاجه، أو تبرّع به لمن يستفيد منه. يتم ترتيب الاستلام مباشرة مع البائع.')}</p>
         <form role="search" onSubmit={(e) => { e.preventDefault(); setQuery(input.trim()); listRef.current?.scrollIntoView({ behavior: 'smooth' }); }} className="mt-6 flex max-w-3xl gap-2">
           <label htmlFor="search" className="sr-only">{tr('Search materials', 'ابحث عن المواد')}</label>
