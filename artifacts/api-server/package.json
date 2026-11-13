@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:alerts": "tsx --test test/availability.test.ts"
+    "test:alerts": "tsx --test test/availability.test.ts",
+    "test:search": "tsx --test test/listings-query.test.ts"
   },
   "dependencies": {
     "@clerk/express": "^2.1.88",

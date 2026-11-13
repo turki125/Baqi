@@ -26,7 +26,6 @@ import {
   GetWalletResponse,
   ListCategoriesResponse,
   ListConversationsResponse,
-  ListListingsQueryParams,
   ListListingsResponse,
   ListMessagesParams,
   ListMessagesResponse,
@@ -54,6 +53,7 @@ import { ObjectStorageService } from "../lib/objectStorage";
 import { ownsUpload } from "../lib/upload-ownership";
 import { createPhotoAssistantRouter } from "./photo-assistant";
 import { criteriaFromSearch, eligiblePurchase } from "../lib/search-criteria";
+import { ListingsHttpQuery } from "../lib/listings-query";
 import { availabilityCard, wakeAvailabilityWorker } from "../lib/availability-engine";
 
 const router: IRouter = Router();
@@ -219,7 +219,7 @@ router.get("/categories", (_req, res): void => {
 
 router.get("/listings", async (req, res): Promise<void> => {
   await seedSampleListings();
-  const parsed = ListListingsQueryParams.safeParse(req.query);
+  const parsed = ListingsHttpQuery.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
