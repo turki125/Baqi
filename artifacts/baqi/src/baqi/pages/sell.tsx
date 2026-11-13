@@ -184,8 +184,8 @@ function CreateWizard() {
     {signedOutBanner}
     {categories.isError && <ErrorState retry={() => void categories.refetch()} message={tr('Material categories could not be loaded.', 'تعذر تحميل فئات المواد.')} />}
     <form onSubmit={publish} noValidate>
-      <Card className="rise p-5 sm:p-6" key={step}>
-        {step === 0 && <div className="space-y-5">
+      <Card className="rise p-5 sm:p-6">
+        <div className={step === 0 ? 'space-y-5' : 'hidden'}>
           <div>
             <p className="text-sm font-semibold">{tr('Photos', 'الصور')}</p>
             <p className="mt-0.5 text-[13px] text-muted-foreground">{tr('Show the full stack and a close-up of labels or damage. The first photo becomes the cover.', 'أظهر الكمية كاملة وصورة قريبة للملصقات أو أي عيوب. الصورة الأولى تصبح الغلاف.')}</p>
@@ -225,7 +225,7 @@ function CreateWizard() {
           <Field label={tr('Description', 'الوصف')} htmlFor="f-description" error={errors.description} hint={tr('Include dimensions, colour, brand, packaging and anything a buyer should know.', 'اذكر المقاسات واللون والعلامة التجارية والتغليف وأي شيء يجب أن يعرفه المشتري.')}>
             <textarea id="f-description" value={d.description} onChange={(e) => set('description', e.target.value)} className="field" dir="auto" {...err('description')} data-testid="input-listing-description" />
           </Field>
-        </div>}
+        </div>
 
         {step === 1 && <div className="space-y-5">
           <fieldset>

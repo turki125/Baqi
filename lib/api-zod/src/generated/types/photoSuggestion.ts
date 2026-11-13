@@ -7,8 +7,11 @@
  */
 
 export interface PhotoSuggestion {
-  categoryId: string;
+  /** @nullable */
+  categoryId: string | null;
+  /** @maxLength 80 */
   title: string;
+  /** @maxLength 360 */
   description: string;
   /**
      * @minimum 0

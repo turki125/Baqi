@@ -50,6 +50,28 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Category"
+  /text-search:
+    post:
+      operationId: interpretTextSearch
+      tags: [assistant]
+      summary: Extract stated criteria from a material search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TextSearchInput"
+      responses:
+        "200":
+          description: Validated criteria for the current inventory search
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TextSearchResult"
+        "429":
+          description: Search rate limit reached
+        "503":
+          description: AI search is temporarily unavailable
   /listings:
     get:
       operationId: listListings
@@ -77,6 +99,24 @@ paths:
         - name: unit
           in: query
           schema: { type: string }
+        - name: searchTermsEn
+          in: query
+          style: form
+          explode: true
+          description: English terms grouped with AND; alternatives in Arabic may match instead
+          schema:
+            type: array
+            maxItems: 8
+            items: { type: string, maxLength: 40 }
+        - name: searchTermsAr
+          in: query
+          style: form
+          explode: true
+          description: Arabic terms grouped with AND; alternatives in English may match instead
+          schema:
+            type: array
+            maxItems: 8
+            items: { type: string, maxLength: 40 }
       responses:
         "200":
           description: Matching listings
@@ -177,13 +217,11 @@ paths:
               $ref: "#/components/schemas/ImageSearchInput"
       responses:
         "200":
-          description: Similar listings that also meet stated constraints
+          description: Similar listings and the criteria extracted in the same model call
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Listing"
+                $ref: "#/components/schemas/ImageSearchResult"
         "401":
           description: Sign in to upload and analyse a reference photo
         "422":
@@ -624,9 +662,9 @@ components:
       type: object
       required: [categoryId, title, description, confidence]
       properties:
-        categoryId: { type: string }
-        title: { type: string }
-        description: { type: string }
+        categoryId: { type: ["string", "null"] }
+        title: { type: string, maxLength: 80 }
+        description: { type: string, maxLength: 360 }
         confidence: { type: number, minimum: 0, maximum: 1 }
     ImageSearchInput:
       type: object
@@ -634,12 +672,64 @@ components:
       properties:
         objectPath: { type: string }
         q: { type: string }
+        queryText: { type: string, maxLength: 500 }
+        searchTermsEn: { type: array, maxItems: 8, items: { type: string, maxLength: 40 } }
+        searchTermsAr: { type: array, maxItems: 8, items: { type: string, maxLength: 40 } }
         minQuantity: { type: number, minimum: 0 }
         unit: { type: string }
         categoryId: { type: string }
         condition: { type: string, enum: [new, like_new, used] }
         freeOnly: { type: boolean }
         sort: { type: string, enum: [newest, price_low, price_high] }
+    SearchCriteria:
+      type: object
+      required: [termsEn, termsAr, categoryId, minQuantity, unit, dimensions, condition, freeOnly]
+      properties:
+        termsEn: { type: array, maxItems: 8, items: { type: string, maxLength: 40 } }
+        termsAr: { type: array, maxItems: 8, items: { type: string, maxLength: 40 } }
+        categoryId: { type: ["string", "null"] }
+        minQuantity: { type: ["number", "null"], minimum: 0 }
+        unit: { type: ["string", "null"], maxLength: 40 }
+        dimensions: { type: ["string", "null"], maxLength: 40 }
+        condition: { type: ["string", "null"], enum: [new, like_new, used, null] }
+        freeOnly: { type: ["boolean", "null"] }
+    SearchUsage:
+      type: object
+      required: [inputTokens, outputTokens, totalTokens]
+      properties:
+        inputTokens: { type: integer, minimum: 0 }
+        outputTokens: { type: integer, minimum: 0 }
+        totalTokens: { type: integer, minimum: 0 }
+    TextSearchInput:
+      type: object
+      required: [query]
+      properties:
+        query: { type: string, minLength: 1, maxLength: 500 }
+    TextSearchResult:
+      type: object
+      required: [criteria, usage, cached]
+      properties:
+        criteria: { $ref: "#/components/schemas/SearchCriteria" }
+        usage: { $ref: "#/components/schemas/SearchUsage" }
+        cached: { type: boolean }
+    ImageAttributes:
+      type: object
+      required: [material, color, pattern, finish]
+      properties:
+        material: { type: ["string", "null"], maxLength: 80 }
+        color: { type: ["string", "null"], maxLength: 60 }
+        pattern: { type: ["string", "null"], maxLength: 80 }
+        finish: { type: ["string", "null"], maxLength: 60 }
+    ImageSearchResult:
+      type: object
+      required: [listings, criteria, attributes, usage]
+      properties:
+        listings:
+          type: array
+          items: { $ref: "#/components/schemas/Listing" }
+        criteria: { $ref: "#/components/schemas/SearchCriteria" }
+        attributes: { $ref: "#/components/schemas/ImageAttributes" }
+        usage: { $ref: "#/components/schemas/SearchUsage" }
     Conversation:
       type: object
       required: [id, listingId, listingTitle, participantName, lastMessage, updatedAt]

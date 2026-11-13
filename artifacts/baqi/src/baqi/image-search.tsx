@@ -1,32 +1,39 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useRequestUploadUrl, useSearchByImage } from '@workspace/api-client-react';
-import type { ImageSearchInput, Listing } from '@workspace/api-client-react';
+import type { ImageSearchInput, Listing, SearchCriteria } from '@workspace/api-client-react';
 import { ImagePlus, LockKeyhole, Search, Trash2 } from 'lucide-react';
 import { useLang } from './lang';
 import { Button, ListingPhoto, Modal, Spinner, btn, useMember } from './ui';
 import { REQ, signInHref } from '@/lib/baqi';
 
 export const SEARCH_UNITS = ['piece', 'bag', 'box', 'sheet', 'roll', 'm', 'm²', 'm³', 'ton', 'kg', 'pallet'];
-export type BaseFilters = Pick<ImageSearchInput, 'q' | 'categoryId' | 'condition' | 'freeOnly' | 'sort'>;
-export type PhotoSearch = { objectPath: string; minQuantity?: number; unit?: string };
+export type BaseFilters = Pick<ImageSearchInput, 'q' | 'searchTermsEn' | 'searchTermsAr' | 'categoryId' | 'condition' | 'freeOnly' | 'minQuantity' | 'unit' | 'sort'>;
+export type PhotoSearch = { objectPath: string; minQuantity?: number; unit?: string; queryText?: string };
 
 /** Owns transient image-search results outside the query cache; results are tagged by the exact request key. */
 export function useImageSearch() {
   const m = useSearchByImage({ request: REQ });
-  const [state, setState] = useState<{ key: string; data?: Listing[]; error?: number } | null>(null);
+  const [state, setState] = useState<{ key: string; data?: Listing[]; error?: number; criteria?: SearchCriteria; attributes?: { material: string | null; color: string | null; pattern: string | null; finish: string | null } } | null>(null);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   const reqId = useRef(0);
   useEffect(() => () => { reqId.current++; }, []);
-  const keyOf = (p: PhotoSearch, f: BaseFilters) => JSON.stringify([p.objectPath, p.minQuantity, p.unit, f.q, f.categoryId, f.condition, f.freeOnly, f.sort]);
+  const keyOf = (p: PhotoSearch, f: BaseFilters) => JSON.stringify([p.objectPath, p.minQuantity, p.unit, p.queryText, f.q, f.searchTermsEn, f.searchTermsAr, f.categoryId, f.condition, f.freeOnly, f.minQuantity, f.unit, f.sort]);
   const run = (p: PhotoSearch, f: BaseFilters) => {
     if (lock.current) return;
     lock.current = true; setBusy(true);
     const id = ++reqId.current; const key = keyOf(p, f);
     setState({ key });
-    m.mutateAsync({ data: { ...f, objectPath: p.objectPath, minQuantity: p.minQuantity, unit: p.minQuantity ? p.unit : undefined } })
-      .then((data) => { if (id === reqId.current) setState({ key, data }); })
+    m.mutateAsync({ data: {
+      ...f,
+      objectPath: p.objectPath,
+      queryText: p.queryText || undefined,
+      minQuantity: p.minQuantity ?? f.minQuantity,
+      unit: p.minQuantity ? p.unit : f.unit,
+      ...(p.queryText?.trim() ? { q: undefined, searchTermsEn: undefined, searchTermsAr: undefined } : {}),
+    } })
+      .then((result) => { if (id === reqId.current) setState({ key, data: result.listings, criteria: result.criteria, attributes: result.attributes }); })
       .catch((error: { status?: number }) => { if (id === reqId.current) setState({ key, error: error.status ?? 503 }); })
       .finally(() => { if (id === reqId.current) { lock.current = false; setBusy(false); } });
   };
@@ -34,14 +41,15 @@ export function useImageSearch() {
   return { state, busy, run, reset, keyOf };
 }
 
-export function PhotoSearchDialog({ open, onOpenChange, initial, onSearch }: {
-  open: boolean; onOpenChange: (o: boolean) => void; initial: PhotoSearch | null; onSearch: (p: PhotoSearch) => void;
+export function PhotoSearchDialog({ open, onOpenChange, initial, initialQueryText, onSearch }: {
+  open: boolean; onOpenChange: (o: boolean) => void; initial: PhotoSearch | null; initialQueryText: string; onSearch: (p: PhotoSearch) => void;
 }) {
   const { tr } = useLang();
   const { user, isLoaded } = useMember();
   const [location] = useLocation();
   const upload = useRequestUploadUrl({ request: REQ });
   const [path, setPath] = useState(initial?.objectPath ?? '');
+  const [queryText, setQueryText] = useState(initial?.queryText ?? initialQueryText);
   const [qty, setQty] = useState(initial?.minQuantity ? String(initial.minQuantity) : '');
   const [unit, setUnit] = useState(initial?.unit ?? '');
   const [customUnit, setCustomUnit] = useState('');
@@ -51,9 +59,10 @@ export function PhotoSearchDialog({ open, onOpenChange, initial, onSearch }: {
   useEffect(() => { if (open) {
     const savedUnit = initial?.unit ?? '';
     setPath(initial?.objectPath ?? ''); setQty(initial?.minQuantity ? String(initial.minQuantity) : '');
+    setQueryText(initial?.queryText ?? initialQueryText);
     setUnit(savedUnit && !SEARCH_UNITS.includes(savedUnit) ? 'custom' : savedUnit);
     setCustomUnit(savedUnit && !SEARCH_UNITS.includes(savedUnit) ? savedUnit : ''); setErr('');
-  } else { upId.current++; setUploading(false); } }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  } else { upId.current++; setUploading(false); } }, [open, initialQueryText]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => { upId.current++; }, []);
 
   const onFile = async (file?: File) => {
@@ -72,7 +81,7 @@ export function PhotoSearchDialog({ open, onOpenChange, initial, onSearch }: {
   const q = Number(qty);
   const selectedUnit = unit === 'custom' ? customUnit.trim() : unit;
   const qtyErr = qty.trim() && (!Number.isFinite(q) || !(q > 0)) ? tr('Enter a quantity greater than zero.', 'أدخل كمية أكبر من صفر.') : qty.trim() && !selectedUnit ? tr('Choose the unit for this quantity.', 'اختر وحدة هذه الكمية.') : '';
-  const submit = () => { if (!path || uploading || qtyErr) return; onSearch({ objectPath: path, minQuantity: qty.trim() ? q : undefined, unit: qty.trim() ? selectedUnit : undefined }); };
+  const submit = () => { if (!path || uploading || qtyErr) return; onSearch({ objectPath: path, minQuantity: qty.trim() ? q : undefined, unit: qty.trim() ? selectedUnit : undefined, queryText: queryText.trim() || undefined }); };
   const unitLabels: Record<string, string> = {
     piece: tr('piece', 'قطعة'), bag: tr('bag', 'كيس'), box: tr('box', 'كرتون'), sheet: tr('sheet', 'لوح'),
     roll: tr('roll', 'لفة'), ton: tr('ton', 'طن'), kg: tr('kg', 'كجم'), pallet: tr('pallet', 'منصة'),
@@ -97,6 +106,11 @@ export function PhotoSearchDialog({ open, onOpenChange, initial, onSearch }: {
         <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading} onChange={(e) => { void onFile(e.target.files?.[0]); e.currentTarget.value = ''; }} data-testid="input-search-photo" />
       </label>}
       {err && <p role="alert" className="text-[13px] font-medium text-destructive">{err}</p>}
+      <div>
+        <label htmlFor="photo-search-text" className="mb-1 block text-sm font-semibold">{tr('What else should match?', 'ما المواصفات الأخرى المطلوبة؟')} <span className="text-xs font-normal text-muted-foreground">{tr('Optional', 'اختياري')}</span></label>
+        <textarea id="photo-search-text" value={queryText} onChange={(e) => setQueryText(e.target.value)} maxLength={500} rows={2} className="field" placeholder={tr('For example: same look, 60 × 60 cm', 'مثال: مثل الصورة، مقاس ٦٠ × ٦٠')} data-testid="input-photo-search-text" />
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">{tr('Your text and photo are analyzed together in one search.', 'يُحلل النص والصورة معاً في عملية بحث واحدة.')}</p>
+      </div>
       <fieldset className="grid grid-cols-2 gap-3">
         <legend className="mb-1 text-sm font-semibold">{tr('Total quantity needed', 'الكمية الإجمالية المطلوبة')} <span className="text-xs font-normal text-muted-foreground">{tr('Optional', 'اختياري')}</span></legend>
         <input type="number" min="0" step="any" inputMode="decimal" value={qty} onChange={(e) => setQty(e.target.value)} className="field num" aria-label={tr('Quantity', 'الكمية')} aria-invalid={!!qtyErr} data-testid="input-search-min-quantity" />

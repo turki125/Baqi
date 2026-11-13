@@ -5,6 +5,7 @@ import {
   desc,
   eq,
   gte,
+  ilike,
   or,
   sql,
 } from "drizzle-orm";
@@ -230,6 +231,25 @@ router.get("/listings", async (req, res): Promise<void> => {
     sql`${listingsTable.quantity} > 0`,
   ];
   const criteria = criteriaFromSearch({ ...params, categoryId: params.category });
+  if (params.category) filters.push(eq(listingsTable.categoryId, params.category));
+  if (params.condition) filters.push(eq(listingsTable.condition, params.condition));
+  if (params.freeOnly !== undefined) filters.push(eq(listingsTable.isFree, params.freeOnly));
+  if (params.minQuantity !== undefined) filters.push(gte(listingsTable.quantity, params.minQuantity));
+  if (params.unit) filters.push(eq(listingsTable.unit, params.unit));
+  if (params.searchTermsEn?.length || params.searchTermsAr?.length) {
+    const group = (terms?: string[]) => terms?.length
+      ? and(...terms.map((term) => {
+        const dimensions = /^(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/i.exec(term);
+        const pattern = dimensions ? `%${dimensions[1]}%${dimensions[2]}%` : `%${term}%`;
+        return or(ilike(listingsTable.title, pattern), ilike(listingsTable.description, pattern))!;
+      }))
+      : undefined;
+    const alternatives = [group(params.searchTermsEn), group(params.searchTermsAr)].filter(Boolean);
+    if (alternatives.length) filters.push(or(...alternatives)!);
+  } else if (params.q?.trim()) {
+    const term = `%${params.q.trim()}%`;
+    filters.push(or(ilike(listingsTable.title, term), ilike(listingsTable.description, term))!);
+  }
 
   const orderBy =
     params.sort === "price_low"

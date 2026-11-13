@@ -29,10 +29,71 @@ export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
 
 
 /**
+ * @summary Extract stated criteria from a material search
+ */
+export const interpretTextSearchBodyQueryMax = 500;
+
+
+
+export const InterpretTextSearchBody = zod.object({
+  "query": zod.string().min(1).max(interpretTextSearchBodyQueryMax)
+})
+
+export const interpretTextSearchResponseCriteriaTermsEnItemMax = 40;
+
+export const interpretTextSearchResponseCriteriaTermsEnMax = 8;
+
+export const interpretTextSearchResponseCriteriaTermsArItemMax = 40;
+
+export const interpretTextSearchResponseCriteriaTermsArMax = 8;
+
+export const interpretTextSearchResponseCriteriaMinQuantityMin = 0;
+
+export const interpretTextSearchResponseCriteriaUnitMax = 40;
+
+export const interpretTextSearchResponseCriteriaDimensionsMax = 40;
+
+export const interpretTextSearchResponseUsageInputTokensMin = 0;
+
+export const interpretTextSearchResponseUsageOutputTokensMin = 0;
+
+export const interpretTextSearchResponseUsageTotalTokensMin = 0;
+
+
+
+export const InterpretTextSearchResponse = zod.object({
+  "criteria": zod.object({
+  "termsEn": zod.array(zod.string().max(interpretTextSearchResponseCriteriaTermsEnItemMax)).max(interpretTextSearchResponseCriteriaTermsEnMax),
+  "termsAr": zod.array(zod.string().max(interpretTextSearchResponseCriteriaTermsArItemMax)).max(interpretTextSearchResponseCriteriaTermsArMax),
+  "categoryId": zod.string().nullable(),
+  "minQuantity": zod.number().min(interpretTextSearchResponseCriteriaMinQuantityMin).nullable(),
+  "unit": zod.string().max(interpretTextSearchResponseCriteriaUnitMax).nullable(),
+  "dimensions": zod.string().max(interpretTextSearchResponseCriteriaDimensionsMax).nullable(),
+  "condition": zod.union([zod.literal('new'),zod.literal('like_new'),zod.literal('used'),zod.literal(null)]).nullable(),
+  "freeOnly": zod.boolean().nullable()
+}),
+  "usage": zod.object({
+  "inputTokens": zod.number().int().min(interpretTextSearchResponseUsageInputTokensMin),
+  "outputTokens": zod.number().int().min(interpretTextSearchResponseUsageOutputTokensMin),
+  "totalTokens": zod.number().int().min(interpretTextSearchResponseUsageTotalTokensMin)
+}),
+  "cached": zod.boolean()
+})
+
+
+/**
  * @summary Search and filter available Riyadh listings
  */
 export const listListingsQuerySortDefault = `newest`;
 export const listListingsQueryMinQuantityMin = 0;
+
+export const listListingsQuerySearchTermsEnItemMax = 40;
+
+export const listListingsQuerySearchTermsEnMax = 8;
+
+export const listListingsQuerySearchTermsArItemMax = 40;
+
+export const listListingsQuerySearchTermsArMax = 8;
 
 
 
@@ -43,7 +104,9 @@ export const ListListingsQueryParams = zod.object({
   "sort": zod.enum(['newest', 'price_low', 'price_high']).default(listListingsQuerySortDefault),
   "freeOnly": zod.coerce.boolean().optional(),
   "minQuantity": zod.coerce.number().min(listListingsQueryMinQuantityMin).optional(),
-  "unit": zod.coerce.string().optional()
+  "unit": zod.coerce.string().optional(),
+  "searchTermsEn": zod.array(zod.coerce.string().max(listListingsQuerySearchTermsEnItemMax)).max(listListingsQuerySearchTermsEnMax).optional().describe('English terms grouped with AND; alternatives in Arabic may match instead'),
+  "searchTermsAr": zod.array(zod.coerce.string().max(listListingsQuerySearchTermsArItemMax)).max(listListingsQuerySearchTermsArMax).optional().describe('Arabic terms grouped with AND; alternatives in English may match instead')
 })
 
 export const ListListingsResponseItem = zod.object({
@@ -243,15 +306,19 @@ export const SuggestListingDetailsBody = zod.object({
   "language": zod.enum(['en', 'ar']).default(suggestListingDetailsBodyLanguageDefault)
 })
 
+export const suggestListingDetailsResponseTitleMax = 80;
+
+export const suggestListingDetailsResponseDescriptionMax = 360;
+
 export const suggestListingDetailsResponseConfidenceMin = 0;
 export const suggestListingDetailsResponseConfidenceMax = 1;
 
 
 
 export const SuggestListingDetailsResponse = zod.object({
-  "categoryId": zod.string(),
-  "title": zod.string(),
-  "description": zod.string(),
+  "categoryId": zod.string().nullable(),
+  "title": zod.string().max(suggestListingDetailsResponseTitleMax),
+  "description": zod.string().max(suggestListingDetailsResponseDescriptionMax),
   "confidence": zod.number().min(suggestListingDetailsResponseConfidenceMin).max(suggestListingDetailsResponseConfidenceMax)
 })
 
@@ -259,6 +326,16 @@ export const SuggestListingDetailsResponse = zod.object({
 /**
  * @summary Find visually similar available listings
  */
+export const searchByImageBodyQueryTextMax = 500;
+
+export const searchByImageBodySearchTermsEnItemMax = 40;
+
+export const searchByImageBodySearchTermsEnMax = 8;
+
+export const searchByImageBodySearchTermsArItemMax = 40;
+
+export const searchByImageBodySearchTermsArMax = 8;
+
 export const searchByImageBodyMinQuantityMin = 0;
 
 
@@ -266,6 +343,9 @@ export const searchByImageBodyMinQuantityMin = 0;
 export const SearchByImageBody = zod.object({
   "objectPath": zod.string(),
   "q": zod.string().optional(),
+  "queryText": zod.string().max(searchByImageBodyQueryTextMax).optional(),
+  "searchTermsEn": zod.array(zod.string().max(searchByImageBodySearchTermsEnItemMax)).max(searchByImageBodySearchTermsEnMax).optional(),
+  "searchTermsAr": zod.array(zod.string().max(searchByImageBodySearchTermsArItemMax)).max(searchByImageBodySearchTermsArMax).optional(),
   "minQuantity": zod.number().min(searchByImageBodyMinQuantityMin).optional(),
   "unit": zod.string().optional(),
   "categoryId": zod.string().optional(),
@@ -274,7 +354,38 @@ export const SearchByImageBody = zod.object({
   "sort": zod.enum(['newest', 'price_low', 'price_high']).optional()
 })
 
-export const SearchByImageResponseItem = zod.object({
+export const searchByImageResponseCriteriaTermsEnItemMax = 40;
+
+export const searchByImageResponseCriteriaTermsEnMax = 8;
+
+export const searchByImageResponseCriteriaTermsArItemMax = 40;
+
+export const searchByImageResponseCriteriaTermsArMax = 8;
+
+export const searchByImageResponseCriteriaMinQuantityMin = 0;
+
+export const searchByImageResponseCriteriaUnitMax = 40;
+
+export const searchByImageResponseCriteriaDimensionsMax = 40;
+
+export const searchByImageResponseAttributesMaterialMax = 80;
+
+export const searchByImageResponseAttributesColorMax = 60;
+
+export const searchByImageResponseAttributesPatternMax = 80;
+
+export const searchByImageResponseAttributesFinishMax = 60;
+
+export const searchByImageResponseUsageInputTokensMin = 0;
+
+export const searchByImageResponseUsageOutputTokensMin = 0;
+
+export const searchByImageResponseUsageTotalTokensMin = 0;
+
+
+
+export const SearchByImageResponse = zod.object({
+  "listings": zod.array(zod.object({
   "id": zod.string(),
   "title": zod.string(),
   "description": zod.string(),
@@ -298,8 +409,29 @@ export const SearchByImageResponseItem = zod.object({
   "saleMode": zod.enum(['partial', 'full_lot']),
   "minimumIncrement": zod.number(),
   "createdAt": zod.coerce.date()
+})),
+  "criteria": zod.object({
+  "termsEn": zod.array(zod.string().max(searchByImageResponseCriteriaTermsEnItemMax)).max(searchByImageResponseCriteriaTermsEnMax),
+  "termsAr": zod.array(zod.string().max(searchByImageResponseCriteriaTermsArItemMax)).max(searchByImageResponseCriteriaTermsArMax),
+  "categoryId": zod.string().nullable(),
+  "minQuantity": zod.number().min(searchByImageResponseCriteriaMinQuantityMin).nullable(),
+  "unit": zod.string().max(searchByImageResponseCriteriaUnitMax).nullable(),
+  "dimensions": zod.string().max(searchByImageResponseCriteriaDimensionsMax).nullable(),
+  "condition": zod.union([zod.literal('new'),zod.literal('like_new'),zod.literal('used'),zod.literal(null)]).nullable(),
+  "freeOnly": zod.boolean().nullable()
+}),
+  "attributes": zod.object({
+  "material": zod.string().max(searchByImageResponseAttributesMaterialMax).nullable(),
+  "color": zod.string().max(searchByImageResponseAttributesColorMax).nullable(),
+  "pattern": zod.string().max(searchByImageResponseAttributesPatternMax).nullable(),
+  "finish": zod.string().max(searchByImageResponseAttributesFinishMax).nullable()
+}),
+  "usage": zod.object({
+  "inputTokens": zod.number().int().min(searchByImageResponseUsageInputTokensMin),
+  "outputTokens": zod.number().int().min(searchByImageResponseUsageOutputTokensMin),
+  "totalTokens": zod.number().int().min(searchByImageResponseUsageTotalTokensMin)
 })
-export const SearchByImageResponse = zod.array(SearchByImageResponseItem)
+})
 
 
 /**

@@ -138,8 +138,11 @@ export interface PhotoSuggestionInput {
 }
 
 export interface PhotoSuggestion {
-  categoryId: string;
+  /** @nullable */
+  categoryId: string | null;
+  /** @maxLength 80 */
   title: string;
+  /** @maxLength 360 */
   description: string;
   /**
      * @minimum 0
@@ -169,6 +172,18 @@ export const ImageSearchInputSort = {
 export interface ImageSearchInput {
   objectPath: string;
   q?: string;
+  /** @maxLength 500 */
+  queryText?: string;
+  /**
+     * @maxItems 8
+     * @items.maxLength 40
+     */
+  searchTermsEn?: string[];
+  /**
+     * @maxItems 8
+     * @items.maxLength 40
+     */
+  searchTermsAr?: string[];
   /** @minimum 0 */
   minQuantity?: number;
   unit?: string;
@@ -176,6 +191,105 @@ export interface ImageSearchInput {
   condition?: ImageSearchInputCondition;
   freeOnly?: boolean;
   sort?: ImageSearchInputSort;
+}
+
+/**
+ * @nullable
+ */
+export type SearchCriteriaCondition = typeof SearchCriteriaCondition[keyof typeof SearchCriteriaCondition] | null;
+
+
+export const SearchCriteriaCondition = {
+  new: 'new',
+  like_new: 'like_new',
+  used: 'used',
+} as const;
+
+export interface SearchCriteria {
+  /**
+     * @maxItems 8
+     * @items.maxLength 40
+     */
+  termsEn: string[];
+  /**
+     * @maxItems 8
+     * @items.maxLength 40
+     */
+  termsAr: string[];
+  /** @nullable */
+  categoryId: string | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  minQuantity: number | null;
+  /**
+     * @maxLength 40
+     * @nullable
+     */
+  unit: string | null;
+  /**
+     * @maxLength 40
+     * @nullable
+     */
+  dimensions: string | null;
+  /** @nullable */
+  condition: SearchCriteriaCondition;
+  /** @nullable */
+  freeOnly: boolean | null;
+}
+
+export interface SearchUsage {
+  /** @minimum 0 */
+  inputTokens: number;
+  /** @minimum 0 */
+  outputTokens: number;
+  /** @minimum 0 */
+  totalTokens: number;
+}
+
+export interface TextSearchInput {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  query: string;
+}
+
+export interface TextSearchResult {
+  criteria: SearchCriteria;
+  usage: SearchUsage;
+  cached: boolean;
+}
+
+export interface ImageAttributes {
+  /**
+     * @maxLength 80
+     * @nullable
+     */
+  material: string | null;
+  /**
+     * @maxLength 60
+     * @nullable
+     */
+  color: string | null;
+  /**
+     * @maxLength 80
+     * @nullable
+     */
+  pattern: string | null;
+  /**
+     * @maxLength 60
+     * @nullable
+     */
+  finish: string | null;
+}
+
+export interface ImageSearchResult {
+  listings: Listing[];
+  criteria: SearchCriteria;
+  attributes: ImageAttributes;
+  usage: SearchUsage;
 }
 
 export type ConversationKind = typeof ConversationKind[keyof typeof ConversationKind];
@@ -561,6 +675,18 @@ freeOnly?: boolean;
  */
 minQuantity?: number;
 unit?: string;
+/**
+ * English terms grouped with AND; alternatives in Arabic may match instead
+ * @maxItems 8
+ * @items.maxLength 40
+ */
+searchTermsEn?: string[];
+/**
+ * Arabic terms grouped with AND; alternatives in English may match instead
+ * @maxItems 8
+ * @items.maxLength 40
+ */
+searchTermsAr?: string[];
 };
 
 export type ListListingsCondition = typeof ListListingsCondition[keyof typeof ListListingsCondition];

@@ -30,20 +30,23 @@ export async function withPhotoBudget<T>(userId: string, work: () => Promise<T>)
   try { return await work(); } finally { active--; }
 }
 
-async function compressed(data: Buffer): Promise<Part> {
+async function compressedBuffer(data: Buffer): Promise<Buffer> {
   if (data.length > MAX_BYTES) throw new PhotoAiError(413, "Use a photo no larger than 10 MB.");
   try {
     const image = sharp(data, { limitInputPixels: 40_000_000 });
     const meta = await image.metadata();
     if (!["jpeg", "png", "webp"].includes(meta.format ?? "")) throw new Error("Unsupported image");
-    const jpeg = await image.rotate().resize({ width: 640, height: 640, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 72 }).toBuffer();
-    return { inlineData: { mimeType: "image/jpeg", data: jpeg.toString("base64") } };
+    return await image.rotate().resize({ width: 640, height: 640, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 72 }).toBuffer();
   } catch {
     throw new PhotoAiError(415, "Use a valid JPEG, PNG or WebP photo.");
   }
 }
 
-async function storagePhoto(objectPath: string, userId: string, ownerOnly: boolean): Promise<Part> {
+async function compressed(data: Buffer): Promise<Part> {
+  return { inlineData: { mimeType: "image/jpeg", data: (await compressedBuffer(data)).toString("base64") } };
+}
+
+async function storagePhotoBuffer(objectPath: string, userId: string, ownerOnly: boolean): Promise<Buffer> {
   if (!/^\/objects\/uploads\/[A-Za-z0-9_/-]+$/.test(objectPath) || objectPath.includes("..")) {
     throw new PhotoAiError(400, "Upload a photo using Baqi before requesting photo assistance.");
   }
@@ -64,10 +67,25 @@ async function storagePhoto(objectPath: string, userId: string, ownerOnly: boole
     if (size > MAX_BYTES) { stream.destroy(); throw new PhotoAiError(413, "Use a photo no larger than 10 MB."); }
     chunks.push(bytes);
   }
-  return compressed(Buffer.concat(chunks));
+  return compressedBuffer(Buffer.concat(chunks));
+}
+
+async function storagePhoto(objectPath: string, userId: string, ownerOnly: boolean): Promise<Part> {
+  return {
+    inlineData: {
+      mimeType: "image/jpeg",
+      data: (await storagePhotoBuffer(objectPath, userId, ownerOnly)).toString("base64"),
+    },
+  };
+}
+
+async function storagePhotoDataUrl(objectPath: string, userId: string, ownerOnly: boolean): Promise<string> {
+  return `data:image/jpeg;base64,${(await storagePhotoBuffer(objectPath, userId, ownerOnly)).toString("base64")}`;
 }
 
 export const referencePhoto = (path: string, userId: string) => storagePhoto(path, userId, true);
+
+export const referencePhotoDataUrl = (path: string, userId: string) => storagePhotoDataUrl(path, userId, true);
 
 export async function listingPhoto(path: string, userId: string): Promise<Part> {
   if (path.startsWith("/objects/")) return storagePhoto(path, userId, false);
@@ -79,6 +97,19 @@ export async function listingPhoto(path: string, userId: string): Promise<Part> 
   for (const dir of [resolve(process.cwd(), "../baqi/public"), resolve(process.cwd(), "artifacts/baqi/public")]) {
     try { return await compressed(await readFile(resolve(dir, path.slice(1)))); }
     catch (error) { if (error instanceof PhotoAiError) throw error; }
+  }
+  throw new PhotoAiError(503, "The demo listing photos could not be loaded.");
+}
+
+export async function listingPhotoDataUrl(path: string, userId: string): Promise<string> {
+  if (path.startsWith("/objects/")) return storagePhotoDataUrl(path, userId, false);
+  if (!["/demo-tiles.jpg", "/demo-cement.jpg", "/demo-timber.jpg"].includes(path)) {
+    throw new PhotoAiError(404, "No supported listing photo.");
+  }
+  for (const dir of [resolve(process.cwd(), "../baqi/public"), resolve(process.cwd(), "artifacts/baqi/public")]) {
+    try {
+      return `data:image/jpeg;base64,${(await compressedBuffer(await readFile(resolve(dir, path.slice(1))))).toString("base64")}`;
+    } catch (error) { if (error instanceof PhotoAiError) throw error; }
   }
   throw new PhotoAiError(503, "The demo listing photos could not be loaded.");
 }

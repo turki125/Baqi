@@ -11,6 +11,18 @@ import type { ImageSearchInputSort } from './imageSearchInputSort';
 export interface ImageSearchInput {
   objectPath: string;
   q?: string;
+  /** @maxLength 500 */
+  queryText?: string;
+  /**
+     * @maxItems 8
+     * @items.maxLength 40
+     */
+  searchTermsEn?: string[];
+  /**
+     * @maxItems 8
+     * @items.maxLength 40
+     */
+  searchTermsAr?: string[];
   /** @minimum 0 */
   minQuantity?: number;
   unit?: string;

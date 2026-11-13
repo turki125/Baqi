@@ -19,4 +19,16 @@ freeOnly?: boolean;
  */
 minQuantity?: number;
 unit?: string;
+/**
+ * English terms grouped with AND; alternatives in Arabic may match instead
+ * @maxItems 8
+ * @items.maxLength 40
+ */
+searchTermsEn?: string[];
+/**
+ * Arabic terms grouped with AND; alternatives in English may match instead
+ * @maxItems 8
+ * @items.maxLength 40
+ */
+searchTermsAr?: string[];
 };
