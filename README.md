@@ -10,6 +10,13 @@ A bilingual marketplace for buying, selling, and giving away surplus constructio
 
 ![React](https://img.shields.io/badge/React-087EA4?style=for-the-badge&logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Platform: Web](https://img.shields.io/badge/Platform-Web-555555?style=for-the-badge)
 
+
+<p align="center">
+  <img src="docs/images/baqi-preview.jpg" alt="Baqi welcome page with animated materials artwork and browsing options" width="100%" />
+</p>
+
+<em>Browse public listings, find materials nearby, and arrange pickup directly with the seller.</em>
+
 [Features](#features) · [How it works](#how-it-works) · [Getting started](#getting-started) · [Development](#development) · [بالعربية](#بالعربية)
 
 </div>
@@ -24,13 +31,13 @@ Baqi connects people who have leftover building materials with people who can us
 
 | Area | What you can do |
 | --- | --- |
-| Bilingual experience | First-visit welcome with animated materials artwork, English/Arabic switching, right-to-left layout, and reduced-motion support. |
+| Bilingual experience | First-visit welcome with animated materials artwork, English and Arabic interface, an Account-page language setting, right-to-left layout, and reduced-motion support. |
 | Material discovery | Search listings, filter by category and condition, browse free materials, and sort by price. |
 | Selling | Upload photos, choose partial or full-lot sales, and control whether your phone number is visible. |
 | Conversations | Message sellers to ask questions and arrange collection. |
 | Reservations and orders | Reserve materials, follow order progress, and try the simulated 10% deposit flow. |
 | Seller wallet | View wallet activity and try simulated withdrawals. |
-| Photo assistance | Search with a reference photo or review suggested listing details powered by Gemini. |
+| Photo assistance | OpenAI-powered smart text/photo search and seller listing suggestions; Gemini visual matching for saved-search alerts. |
 
 ## How it works
 
@@ -50,7 +57,7 @@ An account is required to sell, message, reserve, and manage orders. Public brow
 | API | Node.js, Express 5, Zod |
 | Database | PostgreSQL, Drizzle ORM |
 | API contracts | OpenAPI, Orval-generated clients and schemas |
-| Photo assistance | Gemini through Replit AI Integrations |
+| AI assistance | OpenAI for smart search and listing suggestions; Gemini for saved-search visual matching |
 | Workspace | pnpm workspaces |
 
 ## Getting started
@@ -76,7 +83,8 @@ pnpm install --frozen-lockfile
 | `PORT` | Listening port for each process; use separate ports for the web app and API. |
 | `BASE_PATH` | Web app base path, such as `/`. Required by the Vite configuration. |
 | Replit object storage | Listing photo uploads and private reference photos. |
-| Replit Gemini integration | Optional photo search and listing suggestions. |
+| OpenAI key | Set `OPENAI_API_KEY` or `OpenAiKey` in Replit Secrets for smart search and seller suggestions. |
+| Replit Gemini integration | Optional saved-search visual matching. |
 
 Store credentials in your environment or Replit Secrets. Never commit them to the repository. Local development requires routing `/api` requests to the API server; the repository does not configure a Vite API proxy.
 
@@ -134,7 +142,7 @@ Update the OpenAPI contract and regenerate its clients when changing API interfa
 
 ## Photo assistance
 
-Photo features use Gemini through Replit AI Integrations. Provision that integration before using them. No user-supplied Gemini API key is needed; model usage is billed to the workspace's Replit credits, and managed credentials stay in Secrets.
+OpenAI powers smart text/photo search and seller photo suggestions. Configure `OPENAI_API_KEY` or `OpenAiKey` in Replit Secrets. Saved-search visual matching uses the optional managed Gemini integration. Keep provider credentials in Secrets; never commit them to this repository.
 
 ### Suggest listing details
 
@@ -162,6 +170,6 @@ Visual search compares up to 12 recent qualifying listings with usable photos. S
 - سجّل الدخول لعرض موادك، ومراسلة البائعين، وحجز الكميات، ومتابعة الطلبات.
 - استخدم الواجهة العربية مع دعم العرض من اليمين إلى اليسار.
 - رتّب الاستلام مباشرة مع البائع داخل الرياض.
-- ابحث بصورة أو راجع اقتراحات تفاصيل الإعلان بمساعدة Gemini عند تفعيل التكامل.
+- استخدم البحث الذكي واقتراحات تفاصيل الإعلان، مع مطابقة الصور في تنبيهات البحث المحفوظة عند تفعيل التكامل.
 
 > العربون والمدفوعات والمحفظة والسحوبات في هذه النسخة محاكاة فقط؛ لا تنتقل أموال حقيقية.
