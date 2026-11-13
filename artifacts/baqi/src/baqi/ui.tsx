@@ -6,7 +6,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { getListConversationsQueryKey, useListConversations } from '@workspace/api-client-react';
 import type { Listing } from '@workspace/api-client-react';
 import {
-  AlertCircle, ArrowLeft, BadgeCheck, CircleHelp, ImageOff, Languages, LockKeyhole, MapPin,
+  AlertCircle, ArrowLeft, BadgeCheck, CircleHelp, ImageOff, LockKeyhole, MapPin,
   MessageCircle, PackageOpen, Plus, RotateCcw, Search, SearchCheck, ShoppingBag, UserRound, X, FlaskConical,
 } from 'lucide-react';
 import { useLang } from './lang';
@@ -252,7 +252,7 @@ function isActive(location: string, href: string) {
 }
 
 export function Header() {
-  const { tr, toggle, isAr } = useLang();
+  const { tr } = useLang();
   const [location] = useLocation();
   const { user } = useMember();
   const unread = useUnreadMessages();
@@ -271,9 +271,6 @@ export function Header() {
           <Icon size={17} /><span>{label}</span>{href === '/messages' && <UnreadBadge count={unread} />}</Link>)}
       </nav>
       <div className="ms-auto flex items-center gap-1.5">
-        <button type="button" onClick={toggle} className={cx(btn('ghost', 'sm'), 'min-h-10')} data-testid="button-language" aria-label={tr('Switch to Arabic', 'التبديل إلى الإنجليزية')}>
-          <Languages size={17} /><span className={isAr ? 'font-sans' : ''} lang={isAr ? 'en' : 'ar'}>{isAr ? 'English' : 'العربية'}</span>
-        </button>
         <Link href="/help" className="hidden size-10 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground sm:grid" aria-label={tr('Help', 'المساعدة')} data-testid="link-help"><CircleHelp size={19} /></Link>
         {user && <Link href="/account/alerts" className={cx(btn('ghost', 'sm'), 'hidden min-h-10 lg:inline-flex', location.startsWith('/account/alerts') && 'bg-secondary text-primary')} data-testid="link-header-alerts"><SearchCheck size={17} />إدارة تنبيهاتي</Link>}
         <div className="hidden items-center gap-1.5 md:flex">

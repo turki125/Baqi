@@ -11,7 +11,7 @@ type WelcomeScreenProps = {
 };
 
 export default function WelcomeScreen({ onBrowse, onSell, onSkip }: WelcomeScreenProps) {
-  const { tr, isAr, toggle } = useLang();
+  const { tr } = useLang();
   const [isPaused, setIsPaused] = useState(false);
 
   const steps = [
@@ -24,26 +24,14 @@ export default function WelcomeScreen({ onBrowse, onSell, onSkip }: WelcomeScree
     <main className="min-h-[100dvh] overflow-hidden bg-[#FCFCFA] text-[#191B18]" data-testid="page-welcome">
       <header className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-12 lg:py-7">
         <div data-testid="brand-wordmark"><Logo /></div>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <button
-            type="button"
-            onClick={toggle}
-            className={btn('ghost', 'sm')}
-            aria-label={tr('Switch to Arabic', 'التبديل إلى الإنجليزية')}
-            data-testid="button-language-switch"
-          >
-            <span className="text-[12px] font-bold tracking-[.12em]">{isAr ? 'EN' : 'عربي'}</span>
-          </button>
-          <span aria-hidden="true" className="hidden h-5 w-px bg-[#D9D8D1] sm:block" />
-          <button
-            type="button"
-            onClick={onSkip}
-            className="inline-flex min-h-10 items-center gap-2 px-1 text-sm font-semibold text-[#5B5D57] transition-colors hover:text-[#C63D0E]"
-            data-testid="button-skip"
-          >
-            {tr('Skip', 'تخطّي')} <ArrowUpRight size={15} aria-hidden="true" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onSkip}
+          className="inline-flex min-h-10 items-center gap-2 px-1 text-sm font-semibold text-[#5B5D57] transition-colors hover:text-[#C63D0E]"
+          data-testid="button-skip"
+        >
+          {tr('Skip', 'تخطّي')} <ArrowUpRight size={15} aria-hidden="true" />
+        </button>
       </header>
 
       <section className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-center gap-8 px-5 pb-9 pt-5 sm:px-8 sm:pb-12 md:gap-10 lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-12 lg:px-12 lg:pb-14 lg:pt-7">

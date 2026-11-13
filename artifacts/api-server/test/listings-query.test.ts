@@ -3,6 +3,7 @@ import { after, before, test } from "node:test";
 import type { Server } from "node:http";
 import express from "express";
 import { ListingsHttpQuery } from "../src/lib/listings-query";
+import { constrainCriteriaToText } from "../src/lib/openai-search";
 
 let server: Server;
 let base: string;
@@ -64,4 +65,38 @@ test("query limits and invalid filters still return 400", async () => {
     [["minQuantity", "-1"]],
   ];
   for (const pairs of invalid) assert.equal((await request(pairs)).status, 400);
+});
+
+test("Arabic material search uses the category instead of requiring all translated synonyms", () => {
+  const result = constrainCriteriaToText({
+    termsEn: ["timber", "wood"],
+    termsAr: ["خشب", "أخشاب"],
+    categoryId: "timber",
+    minQuantity: null,
+    unit: null,
+    dimensions: null,
+    condition: null,
+    freeOnly: null,
+  }, "خشب", [{ id: "timber", nameEn: "Timber", nameAr: "أخشاب" }]);
+
+  assert.equal(result.categoryId, "timber");
+  assert.deepEqual(result.termsEn, []);
+  assert.deepEqual(result.termsAr, []);
+});
+
+test("Arabic material search preserves explicit non-category details", () => {
+  const result = constrainCriteriaToText({
+    termsEn: ["timber", "white"],
+    termsAr: ["خشب", "أبيض"],
+    categoryId: "timber",
+    minQuantity: null,
+    unit: null,
+    dimensions: null,
+    condition: null,
+    freeOnly: null,
+  }, "خشب أبيض", [{ id: "timber", nameEn: "Timber", nameAr: "أخشاب" }]);
+
+  assert.equal(result.categoryId, "timber");
+  assert.deepEqual(result.termsEn, ["white"]);
+  assert.deepEqual(result.termsAr, ["أبيض"]);
 });

@@ -1,12 +1,12 @@
 import { Link, useSearch } from 'wouter';
 import { SignIn, SignUp } from '@clerk/react';
-import { ArrowLeft, Languages, MessageCircle, Search, Truck } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Search, Truck } from 'lucide-react';
 import { useLang } from '../lang';
 import { Logo, btn, cx } from '../ui';
 import { basePath, safeRedirect } from '@/lib/baqi';
 
 export default function AuthPage({ mode }: { mode: 'sign-in' | 'sign-up' }) {
-  const { tr, toggle, isAr } = useLang();
+  const { tr, isAr } = useLang();
   const search = useSearch();
   const isIn = mode === 'sign-in';
   const redirectTo = safeRedirect(search);
@@ -30,7 +30,6 @@ export default function AuthPage({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     <main className="flex min-h-[100dvh] min-w-0 flex-col px-4 py-5 sm:px-8">
       <div className="flex items-center justify-between gap-2">
         <Link href="/" className="inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-semibold text-muted-foreground no-underline hover:text-primary" data-testid="link-auth-back"><ArrowLeft size={16} className="rtl-flip" />{tr('Back to Baqi', 'العودة إلى باقي')}</Link>
-        <button type="button" onClick={toggle} className={btn('ghost', 'sm')} data-testid="button-auth-language"><Languages size={16} /><span lang={isAr ? 'en' : 'ar'}>{isAr ? 'English' : 'العربية'}</span></button>
       </div>
       <div className="mx-auto my-auto w-full max-w-[440px] py-8">
         <div className="mb-6 lg:hidden"><Logo /></div>

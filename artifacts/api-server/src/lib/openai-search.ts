@@ -202,13 +202,24 @@ function termIsExplicit(query: string, term: string, categoryId: string | null):
   return false;
 }
 
-function constrainCriteriaToText(criteria: SearchCriteria, query: string, categories: readonly Category[]): SearchCriteria {
+export function constrainCriteriaToText(criteria: SearchCriteria, query: string, categories: readonly Category[]): SearchCriteria {
   if (!query.trim()) return emptyCriteria();
   const explicitCategory = explicitCategoryId(query, criteria.categoryId, categories);
+  const categoryTerms = new Set(
+    explicitCategory
+      ? [
+          ...(CATEGORY_ALIASES[explicitCategory] ?? []),
+          categories.find((category) => category.id === explicitCategory)?.nameEn ?? "",
+          categories.find((category) => category.id === explicitCategory)?.nameAr ?? "",
+        ].map(normalizeQuery)
+      : [],
+  );
   const normalized = normalizeQuery(query);
   const dimension = /(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)/.exec(normalized)?.[0] ?? null;
-  const termsEn = [...new Set(criteria.termsEn.map(normalizeQuery).filter((term) => termIsExplicit(query, term, explicitCategory)))];
-  const termsAr = [...new Set(criteria.termsAr.map(normalizeQuery).filter((term) => termIsExplicit(query, term, explicitCategory)))];
+  // A selected category already represents its translated names and synonyms.
+  // Keeping them as AND terms can exclude otherwise matching listings.
+  const termsEn = [...new Set(criteria.termsEn.map(normalizeQuery).filter((term) => termIsExplicit(query, term, explicitCategory) && !categoryTerms.has(term)))];
+  const termsAr = [...new Set(criteria.termsAr.map(normalizeQuery).filter((term) => termIsExplicit(query, term, explicitCategory) && !categoryTerms.has(term)))];
   if (dimension) {
     if (!termsEn.includes(dimension)) termsEn.push(dimension);
     if (!termsAr.includes(dimension)) termsAr.push(dimension);
