@@ -23,7 +23,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     const labels: [string, string, string][] = [
-      ['/sign-in', 'Sign in', 'تسجيل الدخول'], ['/sign-up', 'Create account', 'إنشاء حساب'],
+      ['/team', 'Team', 'الفريق'], ['/sign-in', 'Sign in', 'تسجيل الدخول'], ['/sign-up', 'Create account', 'إنشاء حساب'],
       ['/listing/', 'Material details', 'تفاصيل المادة'], ['/sell', 'Sell materials', 'بِع موادك'],
       ['/messages/', 'Conversation', 'المحادثة'], ['/messages', 'Messages', 'الرسائل'],
       ['/orders/', 'Order details', 'تفاصيل الطلب'], ['/orders', 'Orders', 'الطلبات'],

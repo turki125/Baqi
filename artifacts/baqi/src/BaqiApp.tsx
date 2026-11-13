@@ -3,6 +3,7 @@ import { Route, Switch, useLocation } from 'wouter';
 import { LanguageProvider } from './baqi/lang';
 import { Shell } from './baqi/ui';
 import CatalogPage from './baqi/pages/catalog';
+import TeamPage from './baqi/pages/team';
 import WelcomeScreen from './baqi/pages/welcome';
 import ListingPage from './baqi/pages/listing';
 import SellPage from './baqi/pages/sell';
@@ -38,6 +39,7 @@ export default function BaqiApp() {
 
   return <LanguageProvider>
     <Switch>
+      <Route path="/team"><TeamPage /></Route>
       <Route path="/sign-in/*?"><AuthPage mode="sign-in" /></Route>
       <Route path="/sign-up/*?"><AuthPage mode="sign-up" /></Route>
       <Route path="/">
