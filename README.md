@@ -45,47 +45,22 @@ An account is required to upload photos, publish listings, message, or reserve. 
 
 ## Screenshots
 
-Your view of the marketplace, from discovery to pickup. Open any image to see it at full size.
-
-<details open>
-<summary><strong>Browse materials and inspect a listing</strong></summary>
-<br />
+All product screenshots are shown below. Click any image to open it at full size.
 
 <table>
   <tr>
-    <td width="50%"><a href="docs/images/baqi-catalog.png"><img src="docs/images/baqi-catalog.png" alt="Material catalog with category filters, prices, quantities, and free listings" width="100%" /></a><br /><sub>Search, filter, and compare available materials.</sub></td>
-    <td width="50%"><a href="docs/images/baqi-listing.png"><img src="docs/images/baqi-listing.png" alt="Tile listing showing unit price, quantity selection, and reservation summary" width="100%" /></a><br /><sub>Review photos, quantity, and price per unit.</sub></td>
+    <td width="50%"><a href="docs/images/baqi-catalog.png"><img src="docs/images/baqi-catalog.png" alt="Material catalog with category filters, prices, quantities, and free listings" width="100%" /></a><br /><sub>Browse, search, filter, and compare materials.</sub></td>
+    <td width="50%"><a href="docs/images/baqi-listing.png"><img src="docs/images/baqi-listing.png" alt="Tile listing showing unit price, quantity selection, and reservation summary" width="100%" /></a><br /><sub>Inspect a listing and its reservation details.</sub></td>
   </tr>
-</table>
-
-</details>
-
-<details>
-<summary><strong>Pickup details and how it works</strong></summary>
-<br />
-
-<table>
   <tr>
-    <td width="50%"><a href="docs/images/baqi-pickup.png"><img src="docs/images/baqi-pickup.png" alt="Pickup information, sale rules, and the message-seller action" width="100%" /></a><br /><sub>Check sale rules and arrange local collection.</sub></td>
-    <td width="50%"><a href="docs/images/baqi-how-it-works.png"><img src="docs/images/baqi-how-it-works.png" alt="Find, ask and reserve, and pick up locally steps" width="100%" /></a><br /><sub>A simple journey from finding materials to pickup.</sub></td>
+    <td width="50%"><a href="docs/images/baqi-pickup.png"><img src="docs/images/baqi-pickup.png" alt="Pickup information, sale rules, and the message-seller action" width="100%" /></a><br /><sub>Review sale rules and arrange local pickup.</sub></td>
+    <td width="50%"><a href="docs/images/baqi-how-it-works.png"><img src="docs/images/baqi-how-it-works.png" alt="Find, ask and reserve, and pick up locally steps" width="100%" /></a><br /><sub>Follow the marketplace flow from search to pickup.</sub></td>
   </tr>
-</table>
-
-</details>
-
-<details>
-<summary><strong>Selling and signing in</strong></summary>
-<br />
-
-<table>
   <tr>
-    <td width="50%"><a href="docs/images/baqi-sell.png"><img src="docs/images/baqi-sell.png" alt="Three-step selling form with cover-photo assistance and draft details" width="100%" /></a><br /><sub>List surplus in three short steps.</sub></td>
+    <td width="50%"><a href="docs/images/baqi-sell.png"><img src="docs/images/baqi-sell.png" alt="Three-step selling form with cover-photo assistance and draft details" width="100%" /></a><br /><sub>Create a listing and review photo suggestions.</sub></td>
     <td width="50%"><a href="docs/images/baqi-sign-in.png"><img src="docs/images/baqi-sign-in.png" alt="Baqi sign-in screen with email and Google sign-in options" width="100%" /></a><br /><sub>Sign in to publish, message, and reserve.</sub></td>
   </tr>
 </table>
-
-</details>
-
 ## Design system
 
 **White, ink, and orange.** A quiet background gives the materials room, while orange highlights the next action.
@@ -118,6 +93,41 @@ Your view of the marketplace, from discovery to pickup. Open any image to see it
 | Development | Replit, pnpm workspaces |
 
 AI helps interpret requests and draft suggestions. Database filters apply search criteria; regular text search and manual listing entry remain available if AI is unavailable.
+
+## Technical overview
+
+Baqi is a pnpm monorepo with a React web app, an Express API, and shared generated API packages.
+
+```mermaid
+flowchart LR
+  Web["React 19 + Vite"] --> Client["Orval React client"] --> API["Express 5 API"]
+  Spec["OpenAPI contract"] --> Client
+  API --> DB[("PostgreSQL + Drizzle")]
+  API --> Storage["Object storage"]
+  API --> AI["OpenAI / Gemini"]
+  Web -. authentication .-> Clerk["Clerk"]
+```
+
+| Package | Responsibility |
+| --- | --- |
+| `artifacts/baqi` | Bilingual React marketplace and user interface. |
+| `artifacts/api-server` | Express endpoints for listings, conversations, orders, alerts, uploads, and AI features. |
+| `lib/api-spec` | OpenAPI contract and Orval code-generation configuration. |
+| `lib/api-client-react` and `lib/api-zod` | Generated typed React API client and request/response schemas. |
+| `lib/db` | PostgreSQL connection and Drizzle ORM schema. |
+
+AI requests run through the API. OpenAI supports smart search and listing suggestions; Gemini can provide saved-search visual matching. Search filters remain deterministic, and standard text search and manual listing entry remain available if AI is unavailable.
+
+### Checks
+
+Run from the repository root:
+
+```sh
+pnpm run typecheck
+pnpm run build
+pnpm --filter @workspace/api-server run test:search
+pnpm --filter @workspace/api-server run test:alerts
+```
 
 ## Run the project
 
