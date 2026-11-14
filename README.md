@@ -147,7 +147,7 @@ Then configure your services and run the API and frontend using the [development
 | --- | --- | --- |
 | Turki Turki | Team lead · قائد الفريق | [LinkedIn](https://www.linkedin.com/in/turki-turki-321b79378/) |
 | Anas Almuziel | Team member · عضو الفريق | [LinkedIn](https://www.linkedin.com/in/anas-almuziel-a891733ab/) |
-| abdulrahman alhailan | Team member · عضو الفريق | [LinkedIn](https://www.linkedin.com/in/abdulrahmannnn/) |
+| Abdulrahman Alhailan | Team member · عضو الفريق | [LinkedIn](https://www.linkedin.com/in/abdulrahmannnn/) |
 
 ## بالعربية
 
