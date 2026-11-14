@@ -14,8 +14,6 @@ English & العربية · Local pickup in Riyadh · Smart text and photo searc
 
 </div>
 
-![Baqi homepage with the white-and-orange theme, material artwork, and search controls](docs/images/baqi-home.png)
-
 ## The idea
 
 One project ends. Another begins.
