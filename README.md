@@ -106,11 +106,13 @@ Your view of the marketplace, from discovery to pickup. Open any image to see it
 
 ## Built with
 
-| Layer | Tools |
+| Layer | Technologies |
 | --- | --- |
-| Interface | React 19, TypeScript, Vite, Tailwind CSS |
+| Web app | React 19, TypeScript, Vite, Tailwind CSS |
 | Routing and data | Wouter, TanStack Query |
-| API and database | Express, PostgreSQL, Drizzle ORM |
+| API | Node.js, Express 5, Zod |
+| API contracts | OpenAPI, Orval-generated React client and schemas |
+| Database | PostgreSQL, Drizzle ORM |
 | Authentication | Clerk |
 | AI | OpenAI for smart search and listing suggestions; optional Gemini matching for saved-search alerts |
 | Development | Replit, pnpm workspaces |
