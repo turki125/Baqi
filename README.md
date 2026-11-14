@@ -8,7 +8,7 @@
 
 English & العربية · Local pickup in Riyadh · Smart text and photo search
 
-[**Try Baqi ↗**](https://baqi-mvp.replit.app/) · [**Watch the demo ▶**](docs/media/baqi-demo.mp4) · [**Meet the team ↗**](https://baqi-team.netlify.app/)
+[**Try Baqi ↗**](https://baqi-mvp.replit.app/) · [**Watch the demo ▶**](https://baqi-team.netlify.app/demo/) · [**Meet the team ↗**](https://baqi-team.netlify.app/)
 
 ![React](https://img.shields.io/badge/React-19-191B18?style=flat-square&logo=react&logoColor=F45A24) ![TypeScript](https://img.shields.io/badge/TypeScript-191B18?style=flat-square&logo=typescript&logoColor=F45A24) ![Replit](https://img.shields.io/badge/Built_on-Replit-C63D0E?style=flat-square&logo=replit&logoColor=white)
 
@@ -24,11 +24,11 @@ Baqi connects people with leftover tiles, timber, cement, and other building mat
 
 ## Demo video
 
-[![Watch the Arabic Baqi demo showing the material listing flow](docs/media/baqi-demo-poster.jpg)](docs/media/baqi-demo.mp4)
+[![Watch the Arabic Baqi demo showing the material listing flow](docs/media/baqi-demo-poster.jpg)](https://baqi-team.netlify.app/demo/)
 
 **1 minute 36 seconds · Arabic narration · 1080p**
 
-[Watch or download the MP4](docs/media/baqi-demo.mp4)
+[Open the video player ↗](https://baqi-team.netlify.app/demo/) · [Download the original MP4](https://github.com/turki125/Baqi/raw/refs/heads/main/docs/media/baqi-demo.mp4)
 
 ## What you can do
 
